@@ -1,0 +1,90 @@
+extends layout
+
+block content
+    | you'v logged in
+    hr
+    = ' ' + JSON.stringify(user)
+    hr
+    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 Modify User Profile
+        .form-group
+            label.col-lg-2.control-label(for="userPhotoInput") File
+            .col-lg-10
+                input#userPhotoInput( type="file", name="displayImage")
+
+        .form-group
+            label.col-lg-2.control-label(for="email") Email
+            .col-lg-10
+                input.form-control#username(name="username", placeholder="Email", type="text")
+
+        .form-group
+            label.col-lg-2.control-label(for="password") Password
+            .col-lg-10
+                input.form-control#password(name="password", placeholder="Password", type="password")
+
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Sign in
+
+    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 submit new Post
+        .form-group
+            label.col-lg-2.control-label(for="userPhotoInput") File
+            .col-lg-10
+                input#userPhotoInput( type="file", name="displayImage")
+
+        .form-group
+            label.col-lg-2.control-label(for="email") Email
+            .col-lg-10
+                input.form-control#username(name="username", placeholder="Email", type="text")
+
+        .form-group
+            label.col-lg-2.control-label(for="password") Password
+            .col-lg-10
+                input.form-control#password(name="password", placeholder="Password", type="password")
+
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Sign in
+
+    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 submit new Wish
+        .form-group
+            label.col-lg-2.control-label(for="userPhotoInput") File
+            .col-lg-10
+                input#userPhotoInput( type="file", name="displayImage")
+
+        .form-group
+            label.col-lg-2.control-label(for="email") Email
+            .col-lg-10
+                input.form-control#username(name="username", placeholder="Email", type="text")
+
+        .form-group
+            label.col-lg-2.control-label(for="password") Password
+            .col-lg-10
+                input.form-control#password(name="password", placeholder="Password", type="password")
+
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Sign in
+
+    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 submit new Wish
+        .form-group
+            label.col-lg-2.control-label(for="userPhotoInput") File
+            .col-lg-10
+                input#userPhotoInput( type="file", name="displayImage")
+
+        .form-group
+            label.col-lg-2.control-label(for="email") Email
+            .col-lg-10
+                input.form-control#username(name="username", placeholder="Email", type="text")
+
+        .form-group
+            label.col-lg-2.control-label(for="password") Password
+            .col-lg-10
+                input.form-control#password(name="password", placeholder="Password", type="password")
+
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Sign in

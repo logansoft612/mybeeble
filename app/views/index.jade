@@ -1,0 +1,55 @@
+extends layout
+
+block content
+    h1= title
+    p Welcome to #{title}
+    div.col-lg-12
+        h1 login
+        form.signin.form-horizontal(action="/api/signin", method="post", role="form")
+            .form-group
+                label.col-lg-2.control-label(for="email") Email
+                .col-lg-10
+                    input.form-control#username(name="username", placeholder="Email", type="text")
+
+            .form-group
+                label.col-lg-2.control-label(for="password") Password
+                .col-lg-10
+                    input.form-control#password(name="password", placeholder="Password", type="password")
+
+            .form-group
+                .col-lg-offset-2.col-lg-10
+                    button.btn.btn-primary(type="submit") Sign in
+
+        hr
+        form.signin.form-horizontal(action="/api/users/pwdreset", method="post", role="form")
+            h1 Reset Password
+            input.form-control#email(type="text", name="email", placeholder="Your Email Address", value="")
+            button.btn.btn-primary(type="submit") Reset Password
+
+        hr
+        form.signup.form-horizontal(action="/api/users", method="post", role="form")
+            h1 Sign Up
+            .form-group
+                label.col-lg-2.control-label(for="name") Full name
+                .col-lg-10
+                    input.form-control#name(type="text", name="name", placeholder="Full name", value="")
+            .form-group
+                label.col-lg-2.control-label(for="email") Email
+                .col-lg-10
+                    input.form-control#email(type="text", name="email", placeholder="Email", value="")
+            .form-group
+                label.col-lg-2.control-label(for="username") Username
+                .col-lg-10
+                    input.form-control#username(type="text", name="username", placeholder="Username", value="")
+            .form-group
+                label.col-lg-2.control-label(for="password") Password
+                .col-lg-10
+                    input.form-control#password(type="password", name="password", placeholder="Password")
+            // input.form-control#firstname(type="hidden", name="first_name", placeholder="Password")
+                input.form-control#lastname(type="hidden", name="last_name", placeholder="Password")
+                input.form-control#phone(type="hidden", name="phone", placeholder="Password")
+                input.form-control#address(type="hidden", name="address", placeholder="Password")
+                input.form-control#zip(type="hidden", name="zip", placeholder="Password")
+            .form-group
+                .col-lg-offset-2.col-lg-10
+                    button.btn.btn-primary(type="submit") Sign up
