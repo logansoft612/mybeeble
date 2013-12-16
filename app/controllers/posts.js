@@ -2,23 +2,23 @@
  * Module dependencies.
  */
 var _ = require('underscore');
-Response = require('../util/response');
+var fs = require('fs');
+var Response = require('../util/response');
+var Util = require('../util/util');
+var config = require('../../config/config');
 
 module.exports = function(dbPool, notifier) {
     return {
         /**
          *
-         * @param req [ keyword, ~zip, ~distance, ~price_min, ~price_max, ~cover, ~category]
+         * @param req [ keyword]
          * @param res
          *
          * keyword : auth, title, isbn, publisher
          */
         search : function(req, res) {
             var param = req.body;
-            var userId = req.user.id;
-            var userZip = req.user.zip;
-            var totalCnt = 0;
-            var idx = 0;
+            var userId = req.params.userId;
             var sql = '';
             var escapedString = '';
 
@@ -46,19 +46,32 @@ module.exports = function(dbPool, notifier) {
 
         /**
          *
-         * @param req [ title, isbn, author, category, publisher, zip, price, address, city, state, description, isOld, contact ( string array or string) [email, text, call], cover ]
+         * @param req [ title, isbn, author, category(ID), publisher, zip, price, address, description, isold, contact ( string array or string) [email, text, call], cover ]
          * @param res
          */
         create : function(req, res) {
             var param = req.body;
             var userId = req.user.id;
             var contactInfo = '';
-
+            var coverPath = '';
             if(req.files) {
                 console.log(req.files);
-                for(var file in req.files) {
-                    console.log(file);
+                var tmp_path = req.files.coverfile.path;
+                var todayFolder = util.getTodayAsString();
+                var folderName = config.root + '/public/' + todayFolder;
+                var target_filename = Util.getTickTime() + req.files.coverfile.originalFilename;
+                coverPath = todayFolder + '/' + target_filename;
+                var target_path = folderName + '/' + target_filename;
+                console.log(folderName);
+                if(!fs.lstatSync(folderName).isDirectory()) {
+                    fs.mkdirSync(folderName);
                 }
+                fs.rename(tmp_path, target_path, function(err) {
+                    if(err) {
+                        console.log(err);
+                    }
+                    fs.unlink(tmp_path, function(err){if (err) {console.log(err);}});
+                })
             }
 
             dbPool.getConnection(function(err, connection){
@@ -70,9 +83,9 @@ module.exports = function(dbPool, notifier) {
                 } else {
                     contactInfo = param.contact;
                 }
-                connection.query( 'INSERT INTO textbook(category_id, title, author, isbn13, publisher, type, price, description, zip, owner_id, old, contact) ' +
+                connection.query( 'INSERT INTO textbook(category_id, title, author, isbn13, publisher, type, price, description, zip, owner_id, old, contact, coverpath) ' +
                     'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, userId, param.isOld, contactInfo],
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, userId, param.isold, contactInfo, coverPath],
                     function(err, result) {
                         connection.release();
                         if (err) {
@@ -112,7 +125,7 @@ module.exports = function(dbPool, notifier) {
 
         /**
          *
-         * @param req [ title, isbn, author, category, publisher, zip, price, address, city, state, description, isOld, contact ( string array or string) [email, text, call], cover ]
+         * @param req [ title, isbn, author, category, publisher, zip, price, address, description, isOld, contact ( string array or string) [email, text, call], cover ]
          * @param res
          * @url_param - postId
          */

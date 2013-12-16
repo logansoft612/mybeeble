@@ -5,50 +5,28 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 Modify User Profile
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
+    form.bookpost(action="/api/users/"+user.id+"/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 Post New Book
+        input#coverfile( type="file", name="coverfile")
 
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Post
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
+        input.form-control#title(name="title", placeholder="title", type="text")
+        input.form-control#author(name="author", placeholder="author", type="text")
+        input.form-control#category(name="category", placeholder="category", type="text")
+        input.form-control#isbn(name="isbn", placeholder="isbn", type="text")
+        input.form-control#publisher(name="publisher", placeholder="publisher", type="text")
+        input.form-control#cover(name="cover", placeholder="cover", type="text")
+        input.form-control#price(name="price", placeholder="price", type="text")
+        input.form-control#description(name="description", placeholder="description", type="text")
+        input.form-control#zip(name="zip", placeholder="zip", type="text")
+        input.form-control#isold(name="isold", placeholder="isold", type="text")
+        input.form-control#contact(name="contact", placeholder="contact", type="text")
 
         .form-group
             .col-lg-offset-2.col-lg-10
                 button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Wish
+    hr
+    form.searchbook(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 Search Post
         .form-group
             label.col-lg-2.control-label(for="userPhotoInput") File
             .col-lg-10
@@ -62,7 +40,7 @@ block content
         .form-group
             label.col-lg-2.control-label(for="password") Password
             .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
+                input.form-control#password(name="password", placeholder="Password", type="text")
 
         .form-group
             .col-lg-offset-2.col-lg-10
@@ -83,7 +61,28 @@ block content
         .form-group
             label.col-lg-2.control-label(for="password") Password
             .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
+                input.form-control#password(name="password", placeholder="Password", type="text")
+
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Sign in
+
+    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 submit new Wish
+        .form-group
+            label.col-lg-2.control-label(for="userPhotoInput") File
+            .col-lg-10
+                input#userPhotoInput( type="file", name="displayImage")
+
+        .form-group
+            label.col-lg-2.control-label(for="email") Email
+            .col-lg-10
+                input.form-control#username(name="username", placeholder="Email", type="text")
+
+        .form-group
+            label.col-lg-2.control-label(for="password") Password
+            .col-lg-10
+                input.form-control#password(name="password", placeholder="Password", type="text")
 
         .form-group
             .col-lg-offset-2.col-lg-10

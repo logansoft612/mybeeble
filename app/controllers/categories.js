@@ -4,7 +4,7 @@
 var _ = require('underscore');
 Response = require('../util/response');
 
-module.exports = function(dbPool, notifier) {
+module.exports = function(dbPool) {
     return {
         /**
          *
@@ -21,14 +21,14 @@ module.exports = function(dbPool, notifier) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( "SELECT COUNT(*) as cnt FROM user_wish WHERE user_id = ?", [userId], function(err, result) {
+                connection.query( "SELECT COUNT(*) as cnt FROM category", [userId], function(err, result) {
                     if (err) {
-                        return Response.error(res, err, 'You can not get wish list. Sorry for inconvenient');
+                        return Response.error(res, err, 'You can not get category list. Sorry for inconvenient');
                     }
                     if(result.length > 0) {
                         totalCnt = result[0]['cnt'];
                     }
-                    sql = 'SELECT * FROM user_wish WHERE user_id = "' + userId + '"';
+                    sql = 'SELECT * FROM category ';
                     if (param.len && param.len > 0) {
                         sql += ' LIMIT ' + param.len;
                         if (param.offset && param.offset > 0) {
@@ -38,7 +38,7 @@ module.exports = function(dbPool, notifier) {
                     connection.query( sql, function(err, result) {
                         connection.release();
                         if (err) {
-                            return Response.error(res, err, 'You can not get wish list. Sorry for inconvenient');
+                            return Response.error(res, err, 'You can not get category list. Sorry for inconvenient');
                         }
                         return Response.success(res, {total: totalCnt, result: result});
                     });
@@ -48,95 +48,96 @@ module.exports = function(dbPool, notifier) {
 
         /**
          *
-         * @param req [ title, isbn, price_min, price_max ]
-         * @param res
+         * @param req [ title, slug ]
+         * @param res {}
          */
         create : function(req, res) {
             var param = req.body;
-            var userId = req.user.id;
-            var userName = req.user.first_name + ' ' + req.user.last_name;
-
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'INSERT INTO user_wish(user_id, title, isbn, price_min, price_max) values (?, ?, ?, ?, ?)',
-                    [userId, param.title, param.isbn, param.price_min, param.price_max], function(err, result) {
+                connection.query( 'INSERT INTO category( title, slug) values (?, ?)',
+                    [ param.title, param.slug], function(err, result) {
                         connection.release();
                         if (err) {
-                            return Response.error(res, err, 'Did not create new user.');
+                            return Response.error(res, err, 'Did not create new category.');
                         }
-                        notifier.wishlistAdded(param.title, param.isbn, param.price_min, param.price_max, userId, userName);
                         return Response.success(res, result);
-                    })
+                    });
             });
         },
 
         /**
          *
-         * @param req [ wishId ]
+         * @param req
          * @param res
+         * @url_param - categoryId
          */
         read : function(req, res) {
-            var param = req.body;
-            var wishId = req.params.wishId;
-            var userId = req.user.id;
+            var categoryId = req.params.categoryId;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'SELECT * FROM user_wish WHERE user_id = ? AND id = ?',
-                    [userId, wishId], function(err, result) {
+                connection.query( 'SELECT * FROM category WHERE id = ? ',
+                    [categoryId], function(err, result) {
                         connection.release();
                         if (err) {
-                            return Response.error(res, err, 'Did not find wish.');
+                            return Response.error(res, err, 'Can not find category.');
                         }
                         if(result.length == 0) {
-                            return Response.error(res, result, 'You do not have permission.');
+                            return Response.error(res, result, 'Did not find category.');
                         }
                         return Response.success(res, result);
-                    })
+                    });
             });
         },
-
+        /**
+         *
+         * @param req [ title, slug ]
+         * @param res {}
+         * @url_param - categoryId
+         */
         update : function(req, res) {
             var param = req.body;
-            var wishId = req.params.wishId;
-            var userId = req.user.id;
+            var categoryId = req.params.categoryId;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'UPDATE user_wish SET title=?, isbn=?, price_min=?, price_max=?' +
-                    ' WHERE user_id=? AND id=?', [param.title, param.isbn, param.price_min, param.price_max, userId, wishId], function(err, result) {
-                    connection.release();
-                    if (err) {
-                        return Response.error(res, err, 'Did not update a wish info.');
-                    }
-                    if(result.affectedRows == 0) {
-                        return Response.error(res, result, 'You do not have permission.');
-                    }
-                    return Response.success(res, result);
-                })
-            })
-        },
-
-        delete : function(req, res) {
-            var param = req.body;
-            var wishId = req.params.wishId;
-            var userId = req.user.id;
-
-            dbPool.getConnection(function(err, connection){
-                if (err) {
-                    return Response.error(res, err, 'Can not get db connection.');
-                }
-                connection.query( 'DELETE FROM user_wish WHERE user_id=? AND id=?',
-                    [userId, wishId], function(err, result) {
+                connection.query( 'UPDATE category SET title=?, slug=? WHERE id=?',
+                    [param.title, param.slug, categoryId], function(err, result) {
                         connection.release();
                         if (err) {
-                            return Response.error(res, err, 'Did not delete current wish.');
+                            return Response.error(res, err, 'Can not update this category info.');
+                        }
+                        if(result.affectedRows == 0) {
+                            return Response.error(res, result, 'Did not update this category info.');
+                        }
+                        return Response.success(res, result);
+                    });
+            });
+        },
+        /**
+         * @param req
+         * @param res {}
+         * @url_param - categoryId
+         */
+        delete : function(req, res) {
+            var categoryId = req.params.categoryId;
+
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.');
+                }
+                connection.query( 'DELETE FROM category WHERE id=?',
+                    [categoryId], function(err, result) {
+                        connection.release();
+                        if (err) {
+                            return Response.error(res, err, 'Did not delete this category.');
                         }
                         return Response.success(res, result);
                     })
