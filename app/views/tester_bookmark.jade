@@ -6,7 +6,7 @@ block content
     = ' ' + JSON.stringify(user)
     hr
     form.all.form-horizontal(method="get", role="form")
-        h1 Get All bookmarkes
+        h1 Get All bookmarks
         input.form-control#all_user_id(placeholder="user_id", type="text", value=user.id)
         input.form-control#all_offset(type="text", placeholder="Offset")
         input.form-control#all_len(type="text", placeholder="Length")
@@ -16,10 +16,7 @@ block content
         h1 Create new bookmark
         input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
         br
-        input.form-control#create_title(placeholder="Title", type="text")
-        input.form-control#create_isbn(placeholder="isbn", type="text")
-        input.form-control#create_price_min(placeholder="Price Min", type="text")
-        input.form-control#create_price_max(placeholder="Price Max", type="text")
+        input.form-control#create_book_id(placeholder="Textbook Id", type="text")
         button.btn.btn-primary(type="submit") Create
     hr
     form.get.form-horizontal
@@ -28,8 +25,44 @@ block content
         input.form-control#get_bookmark_id(placeholder="bookmark Id", type="text")
         button.btn.btn-primary(type="submit") Get Info
     hr
-    form.get.form-horizontal
+    form.delete.form-horizontal
         h1 Delete bookmark info
         input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
         input.form-control#delete_bookmark_id(placeholder="bookmark Id", type="text")
         button.btn.btn-primary(type="submit") Delete
+
+    script.
+        $("form.all").on("submit", function(){
+            var frm = {};
+            if ($("#all_offset").val().length != 0) {
+                frm.offset = $("#all_offset").val();
+            }
+            if ($("#all_len").val().length != 0) {
+                frm.len = $("#all_len").val();
+            }
+            $.ajax("/api/users/"+$("#all_user_id").val()+"/bookmarks",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.create").on("submit", function(){
+            var frm = {
+                book_id: $("#create_book_id").val()
+            };
+            $.ajax("/api/users/"+$("#create_user_id").val()+"/bookmarks",
+                {dataType: 'json', data: frm, type : 'POST'}
+            );
+            return false;
+        });
+        $("form.get").on("submit", function(){
+            $.ajax("/api/users/"+$("#get_user_id").val()+"/bookmarks/"+$("#get_bookmark_id").val(),
+                {dataType: 'json', data: {}, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.delete").on("submit", function(){
+            $.ajax("/api/users/"+$("#delete_user_id").val()+"/bookmarks/"+$("#delete_bookmark_id").val(),
+                {dataType: 'json', data: {}, type : 'DELETE'}
+            );
+            return false;
+        });

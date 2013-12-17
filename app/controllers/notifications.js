@@ -18,14 +18,16 @@ var IncreaseUnreadNotification = function ( users , connection , cb) {
             cb( false );
             return;
         }
-        connection.query("UPDATE users SET notification_cnt = notification_cnt + 1 WHERE id IN (??)", [users.join(',')], function(err, result) {
+        console.log(users);
+        connection.query("UPDATE user SET notification_cnt = notification_cnt + 1 WHERE id IN (??)", [users.join(',')], function(err, result) {
             if (err) {
                 cb( false );
             }
             cb( true );
         });
     } else if ( typeof users == "string" || typeof users == "number" ) {
-        connection.query("UPDATE users SET notification_cnt = notification_cnt + 1 WHERE id = ?", [users], function(err, result) {
+        console.log(users);
+        connection.query("UPDATE user SET notification_cnt = notification_cnt + 1 WHERE id = ?", [users], function(err, result) {
             if (err) {
                 cb( false );
             }
@@ -280,8 +282,8 @@ module.exports = function(dbPool) {
                     console.log(" - notification report error. ( bookmark added ) - ", err);
                     return;
                 }
-                connection.query('SELECT title, owner_id FROM textbook tb WHERE id = ?'
-                    , [messageListId, senderId, messageId], function(err, result) {
+                connection.query('SELECT title, owner_id FROM textbook WHERE id = ?'
+                    , [bookId], function(err, result) {
 
                     if (err) {
                         connection.release();
@@ -294,7 +296,7 @@ module.exports = function(dbPool) {
                         return;
                     }
                     description = '<b>' + adderName + '</b> bookmarked your post <b>' + result[0].title  + '</b>';
-                    connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES ?',
+                    connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES (?, ?, ?, ?)',
                         [result[0].owner_id, BOOKMARKED_YOUR_POST, description, linkTo], function (err, results) {
                             if (err) {
                                 connection.release();
@@ -303,6 +305,7 @@ module.exports = function(dbPool) {
                             }
                             IncreaseUnreadNotification(result[0].owner_id, connection, function(){
                                 connection.release();
+                                if(!result) console.log("Did not increase notification count.");
                             });
                         });
                 });
@@ -352,8 +355,9 @@ module.exports = function(dbPool) {
                                     console.log(" - notification report error. ( wishlist added ) - ", err);
                                     return;
                                 }
-                                IncreaseUnreadNotification(userList, connection, function(){
+                                IncreaseUnreadNotification(userList, connection, function(result){
                                     connection.release();
+                                    if(!result) console.log("Did not increase notification count.");
                                 });
                             });
                     });

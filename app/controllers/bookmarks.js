@@ -12,8 +12,8 @@ module.exports = function(dbPool, notifier) {
          * @param res { total: '', result: result}
          */
         all : function(req, res) {
-            var param = req.body;
-            var userId = 1;//req.user.id;
+            var param = req.query;
+            var userId = req.params.userId;
             var totalCnt = 0;
             var sql = '';
 
@@ -28,13 +28,13 @@ module.exports = function(dbPool, notifier) {
                     if(result.length > 0) {
                         totalCnt = result[0]['cnt'];
                     }
-                    sql = 'SELECT ub.id id, tb.title title, tb.author author, tb.isbn13, tb.isbn10, tb.publisher, tb.type, tb.price, tb.description, tb.zip, tb.longitude, tb.latitude, c.title category, ow.username owner, ow.email ow_email, ow.first_name ow_first_name, ow.last_name ow_last_name' +
-                        'FROM user_bookmark ub ' +
-                        'LEFT JOIN textbook tb  ON ub.book_id = tb.id ' +
-                        'LEFT JOIN user u       ON ub.user_id = u.id ' +
-                        'LEFT JOIN category c   ON tb.category_id = c.id ' +
-                        'LEFT JOIN user ow      ON tb.owner_id = ow.id ' +
-                        'WHERE ub.user_id = "' + userId + '"';
+                    sql = 'SELECT ub.id id, tb.title title, tb.author author, tb.isbn13, tb.isbn10, tb.publisher, tb.type, tb.price, tb.description, tb.zip, tb.longitude, tb.latitude, c.title category, ow.username owner, ow.email ow_email, ow.first_name ow_first_name, ow.last_name ow_last_name ' +
+                        ' FROM user_bookmark ub ' +
+                        ' LEFT JOIN textbook tb  ON ub.book_id = tb.id ' +
+                        ' LEFT JOIN user u       ON ub.user_id = u.id ' +
+                        ' LEFT JOIN category c   ON tb.category_id = c.id ' +
+                        ' LEFT JOIN user ow      ON tb.owner_id = ow.id ' +
+                        ' WHERE ub.user_id = "' + userId + '"';
                     if (param.len && param.len > 0) {
                         sql += ' LIMIT ' + param.len;
                         if (param.offset && param.offset > 0) {
@@ -58,21 +58,36 @@ module.exports = function(dbPool, notifier) {
          */
         create : function(req, res) {
             var param = req.body;
-            var userId = req.user.id;
-            var userName = req.user.first_name + ' ' + req.user.last_name;
+            var userId = req.params.userId;               // Should Create notification.
+            var userName = req.profile.first_name + ' ' + req.profile.last_name;
+            var ownerId = 0;
+            var categoryId = 0;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'INSERT INTO user_bookmark(user_id, book_id) values (?, ?,)',
-                    [userId, param.book_id], function(err, result) {
-                        connection.release();
+                connection.query( 'SELECT * FROM textbook WHERE id = ?',
+                    [param.book_id], function(err, result) {
                         if (err) {
-                            return Response.error(res, err, 'Did not create new user.');
+                            connection.release();
+                            return Response.error(res, err, 'Can not bookmark current book. Sorry for inconvenient.');
                         }
-                        notifier.bookmarkAdded(param.book_id, userId, userName);
-                        return Response.success(res, result);
+                        if (result.length === 0) {
+                            connection.release();
+                            return Response.error(res, err, 'Did not find a book to bookmark.');
+                        }
+                        ownerId = result[0].owner_id;
+                        categoryId = result[0].category_id;
+                        connection.query( 'INSERT INTO user_bookmark(user_id, book_id, owner_id, category_id) values (?, ?, ?, ?)',
+                            [userId, param.book_id, ownerId,categoryId], function(err, result2) {
+                                connection.release();
+                                if (err) {
+                                    return Response.error(res, err, 'Can not bookmark current book. Sorry for inconvenient.');
+                                }
+                                notifier.bookmarkAdded(param.book_id, userId, userName);
+                                return Response.success(res, result2);
+                            });
                     });
             });
         },
@@ -85,7 +100,7 @@ module.exports = function(dbPool, notifier) {
         read : function(req, res) {
             var param = req.body;
             var wishId = req.params.bookmarkId;
-            var userId = req.user.id;
+            var userId = req.params.userId;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -119,7 +134,7 @@ module.exports = function(dbPool, notifier) {
         delete : function(req, res) {
             var param = req.body;
             var bookmarkId = req.params.bookmarkId;
-            var userId = req.user.id;
+            var userId = req.params.userId;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {

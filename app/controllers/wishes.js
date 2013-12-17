@@ -13,7 +13,7 @@ module.exports = function(dbPool, notifier) {
          */
         all : function(req, res) {
             var param = req.query;
-            var userId = req.user.id;
+            var userId = req.params.userId;
             var totalCnt = 0;
             var sql = '';
 
@@ -53,7 +53,7 @@ module.exports = function(dbPool, notifier) {
          */
         create : function(req, res) {
             var param = req.body;
-            var userId = req.user.id;
+            var userId = req.params.userId;
             var userName = req.user.first_name + ' ' + req.user.last_name;
 
             dbPool.getConnection(function(err, connection){
@@ -80,7 +80,7 @@ module.exports = function(dbPool, notifier) {
         read : function(req, res) {
             var param = req.body;
             var wishId = req.params.wishId;
-            var userId = req.user.id;
+            var userId = req.params.userId;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -103,7 +103,7 @@ module.exports = function(dbPool, notifier) {
         update : function(req, res) {
             var param = req.body;
             var wishId = req.params.wishId;
-            var userId = req.user.id;
+            var userId = req.params.userId;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -126,7 +126,7 @@ module.exports = function(dbPool, notifier) {
         delete : function(req, res) {
             var param = req.body;
             var wishId = req.params.wishId;
-            var userId = req.user.id;
+            var userId = req.params.userId;
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
