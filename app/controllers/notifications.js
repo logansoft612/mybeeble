@@ -14,11 +14,10 @@ var IncreaseUnreadNotification = function ( users , connection , cb) {
     //Increase Unread Notification
     var param;
     if ( Object.prototype.toString.call(users) === '[object Array]' ) {
-        if(user.length == 0) {
+        if(users.length == 0) {
             cb( false );
             return;
         }
-        console.log(users);
         connection.query("UPDATE user SET notification_cnt = notification_cnt + 1 WHERE id IN (??)", [users.join(',')], function(err, result) {
             if (err) {
                 cb( false );
@@ -26,7 +25,6 @@ var IncreaseUnreadNotification = function ( users , connection , cb) {
             cb( true );
         });
     } else if ( typeof users == "string" || typeof users == "number" ) {
-        console.log(users);
         connection.query("UPDATE user SET notification_cnt = notification_cnt + 1 WHERE id = ?", [users], function(err, result) {
             if (err) {
                 cb( false );
@@ -128,20 +126,21 @@ module.exports = function(dbPool) {
             var notifyValues = [];
             var linkTo = "/api/books/" + bookId;
             var userList = [];
+            var sql = "";
 
             dbPool.getConnection(function(err, connection){
                 if(err) {
                     console.log(" - notification report error. ( book posted ) - ", err);
                     return;
                 }
-                connection.query('SELECT user_id FROM user_wish WHERE (title = ? OR isbn = ?) AND ( price_min <= ? AND price_max >= ? )',
-                    [bookTitle, isbn, price, price], function(err, results){
+                sql = 'SELECT user_id FROM user_wish WHERE (title = '+connection.escape(bookTitle)+
+                    ' OR isbn = '+connection.escape(isbn)+') AND ( price_min <= '+price+' AND price_max >= '+price+' )';
+                connection.query( sql, function(err, results){
                         if (err) {
                             connection.release();
                             console.log(" - notification report error. (book posted) - ", err);
                             return;
                         }
-
                         if(results.length == 0) {
                             connection.release();
                             return;
@@ -157,7 +156,6 @@ module.exports = function(dbPool) {
                             ]);
                             userList.push(results[idx].user_id);
                         }
-
                         connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES ?', [notifyValues], function (err, results) {
                             if (err) {
                                 connection.release();

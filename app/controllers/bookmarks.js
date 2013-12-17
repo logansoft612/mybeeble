@@ -119,9 +119,9 @@ module.exports = function(dbPool, notifier) {
                             return Response.error(res, err, 'Did not find bookmark.');
                         }
                         if(result.length == 0) {
-                            return Response.error(res, err, 'You do not have permission.');
+                            return Response.error(res, err, 'Can not find this bookmark.');
                         }
-                        return Response.success(res, result);
+                        return Response.success(res, result[0]);
                     })
             });
         },

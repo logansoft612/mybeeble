@@ -95,7 +95,7 @@ module.exports = function(dbPool, notifier) {
                         if(result.length == 0) {
                             return Response.error(res, result, 'Can not find the wish.');
                         }
-                        return Response.success(res, result);
+                        return Response.success(res, result[0]);
                     })
             });
         },

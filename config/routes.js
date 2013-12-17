@@ -49,10 +49,12 @@ module.exports = function (app, passport, auth, dbPool) {
 
     //app.param('bookId', books.book);
 
-    var posts = require('../app/controllers/posts')(dbPool);
+    var posts = require('../app/controllers/posts')(dbPool, notification);
     app.get('/api/users/:userId/posts', posts.search);
     app.post('/api/users/:userId/posts', posts.create);
-    app.put('/api/users/:userId/posts/:postId', posts.update);
+    app.get( '/api/users/:userId/posts/:postId', posts.get);
+    app.post('/api/users/:userId/posts/:postId', posts.update);    ///--- This should be changed to PUT method
+    //app.post('/api/users/:userId/updateposts', posts.update);    ///--- This should be changed to PUT method
     app.del('/api/users/:userId/posts/:postId', posts.delete);
 
     //app.param('postId', posts.post);

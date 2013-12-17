@@ -5,7 +5,7 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.newpost(action="/api/users/"+user.id+"/posts",enctype="multipart/form-data", method="post", role="form")
+    form.create(action="/api/users/"+user.id+"/posts",enctype="multipart/form-data", method="post", role="form")
         h1 Post New Book
         input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
         br
@@ -27,38 +27,63 @@ block content
             .col-lg-offset-2.col-lg-10
                 button.btn.btn-primary(type="submit") Post A New Book
     hr
-    form.modifypost.form-horizontal(action="/api/posts", method="post", role="form")
+    form.update.form-horizontal(action="/api/users/"+user.id+"/posts//update",enctype="multipart/form-data", method="post", role="form")
         h1 Modify Post
-        input.form-control#modify_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#modify_post_id(placeholder="keyword", type="text")
+        input.form-control#update_user_id(placeholder="user_id", type="text", value=user.id)
+        input.form-control#update_post_id(placeholder="keyword", type="text")
         br
-        input#coverfile( type="file", name="coverfile")
+        input#modify_coverfile( type="file", name="coverfile")
 
-        input.form-control#title(name="title", placeholder="title", type="text")
-        input.form-control#author(name="author", placeholder="author", type="text")
-        input.form-control#category(name="category", placeholder="category", type="text")
-        input.form-control#isbn(name="isbn", placeholder="isbn", type="text")
-        input.form-control#publisher(name="publisher", placeholder="publisher", type="text")
-        input.form-control#cover(name="cover", placeholder="cover", type="text")
-        input.form-control#price(name="price", placeholder="price", type="text")
-        input.form-control#description(name="description", placeholder="description", type="text")
-        input.form-control#zip(name="zip", placeholder="zip", type="text")
-        input.form-control#isold(name="isold", placeholder="isold", type="text")
-        input.form-control#contact(name="contact", placeholder="contact", type="text")
+        input.form-control#modify_title(name="title", placeholder="title", type="text")
+        input.form-control#modify_author(name="author", placeholder="author", type="text")
+        input.form-control#modify_category(name="category", placeholder="category", type="text")
+        input.form-control#modify_isbn(name="isbn", placeholder="isbn", type="text")
+        input.form-control#modify_publisher(name="publisher", placeholder="publisher", type="text")
+        input.form-control#modify_cover(name="cover", placeholder="cover", type="text")
+        input.form-control#modify_price(name="price", placeholder="price", type="text")
+        input.form-control#modify_description(name="description", placeholder="description", type="text")
+        input.form-control#modify_zip(name="zip", placeholder="zip", type="text")
+        input.form-control#modify_isold(name="isold", placeholder="isold", type="text")
+        input.form-control#modify_contact(name="contact", placeholder="contact", type="text")
 
         .form-group
             .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Post A New Book
+                button.btn.btn-primary(type="submit") Update the Book
     hr
-    form.searchpost.form-horizontal(method="get", role="form")
+    form.search.form-horizontal(method="get", role="form")
         h1 Search Post
         input.form-control#search_user_id(placeholder="user_id", type="text", value=user.id)
         input.form-control#keyword(placeholder="keyword", type="text")
         button.btn.btn-primary(type="submit") Search
     hr
-    form.removepost.form-horizontal
+    form.delete.form-horizontal
         h1 Remove Post
         input.form-control#delete_user_id(placeholder="User ID", type="text", value=user.id)
         input.form-control#delete_post_id(placeholder="Post ID", type="text")
         button.btn.btn-primary(type="submit") Remove
-    hr
+
+    script.
+        $("form.create").on("submit", function(){
+            $(this).attr("action", "/api/users/"+$("#create_user_id").val()+"/posts");
+            return true;
+        });
+        $("form.update").on("submit", function(){
+            $(this).attr("action", "/api/users/"+$("#update_user_id").val()+"/posts/" + $("#update_post_id").val());
+            //$(this).attr("action", "/api/users/"+$("#update_user_id").val()+"/updateposts");
+            return true;
+        });
+        $("form.search").on("submit", function(){
+            var frm = {
+                keyword: $("#keyword").val()
+            };
+            $.ajax("/api/users/"+$("#search_user_id").val()+"/posts",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.delete").on("submit", function(){
+            $.ajax("/api/users/"+$("#delete_user_id").val()+"/posts/"+$("#delete_post_id").val(),
+                {dataType: 'json', data: {}, type : 'DELETE'}
+            );
+            return false;
+        });
