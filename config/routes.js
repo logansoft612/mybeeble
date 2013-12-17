@@ -27,7 +27,7 @@ module.exports = function (app, passport, auth, dbPool) {
     var wishes = require('../app/controllers/wishes')(dbPool, notification);
     //app.get('/api/wishes', wishes.adminAll);
     app.get('/api/users/:userId/wishes', auth.requiresLogin, auth.user.hasAuthorization, wishes.all);
-    app.post('/api/users/:userId/wishes, auth.requiresLogin, auth.user.hasAuthorization', wishes.create);
+    app.post('/api/users/:userId/wishes', auth.requiresLogin, auth.user.hasAuthorization, wishes.create);
     app.get('/api/users/:userId/wishes/:wishId', auth.requiresLogin, auth.user.hasAuthorization, wishes.read);
     app.put('/api/users/:userId/wishes/:wishId', auth.requiresLogin, auth.user.hasAuthorization, wishes.update);
     app.del('/api/users/:userId/wishes/:wishId', auth.requiresLogin, auth.user.hasAuthorization, wishes.delete);
@@ -73,6 +73,9 @@ module.exports = function (app, passport, auth, dbPool) {
     //app.get('/api/notifications', notification.adminAll);
     app.get('/api/users/:userId/notifications', auth.requiresLogin, auth.user.hasAuthorization, notification.all);
     app.get('/api/users/:userId/notifications/unread', auth.requiresLogin, auth.user.hasAuthorization, notification.unread);
+    app.put('/api/users/:userId/notifications/:notificationId', auth.requiresLogin, auth.user.hasAuthorization, notification.check);
+    app.del('/api/users/:userId/notifications', auth.requiresLogin, auth.user.hasAuthorization, notification.deleteAll);
+    app.del('/api/users/:userId/notifications/:notificationId', auth.requiresLogin, auth.user.hasAuthorization, notification.delete);
 
     var index = require('../routes/index');
     app.get('/', index.index);

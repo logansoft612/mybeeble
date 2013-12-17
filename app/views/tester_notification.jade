@@ -5,86 +5,71 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 Modify User Profile
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
+    form.all.form-horizontal(method="get", role="form")
+        h1 Get All notifications
+        input.form-control#all_user_id(placeholder="user_id", type="text", value=user.id)
+        input.form-control#all_offset(type="text", placeholder="Offset")
+        input.form-control#all_len(type="text", placeholder="Length")
+        button.btn.btn-primary(type="submit") Get All
+    hr
+    form.check.form-horizontal(method="post", role="form")
+        h1 Check notifications manually
+        input.form-control#check_user_id(placeholder="User Id", type="text", value=user.id)
+        input.form-control#check_notification_id(placeholder="notification Id", type="text")
+        button.btn.btn-primary(type="submit") Check notification
+    hr
+    form.unread.form-horizontal(method="post", role="form")
+        h1 Get unread notifications
+        input.form-control#unread_user_id(placeholder="User Id", type="text", value=user.id)
+        button.btn.btn-primary(type="submit") Get unread
+    hr
+    form.delete.form-horizontal
+        h1 Delete notifications
+        input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
+        input.form-control#delete_notification_id(placeholder="notification Id", type="text")
+        button.btn.btn-primary(type="submit") Delete
+    hr
+    form.deleteall.form-horizontal
+        h1 Delete All notifications
+        input.form-control#deleteall_user_id(placeholder="user_id", type="text", value=user.id)
+        button.btn.btn-primary(type="submit") Delete All
 
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
+    script.
+        $("form.all").on("submit", function(){
+            var frm = {};
+            if ($("#all_offset").val().length != 0) {
+                frm.offset = $("#all_offset").val();
+            }
+            if ($("#all_len").val().length != 0) {
+                frm.len = $("#all_len").val();
+            }
+            $.ajax("/api/users/"+$("#all_user_id").val()+"/notifications",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.unread").on("submit", function(){
+            $.ajax("/api/users/"+$("#unread_user_id").val()+"/notifications/unread",
+                {dataType: 'json', data: {}, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.check").on("submit", function(){
 
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Post
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Wish
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Wish
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
+            $.ajax("/api/users/"+$("#check_user_id").val()+"/notifications/"+$("#check_notification_id").val(),
+                {dataType: 'json', data: {}, type : 'PUT'}
+            );
+            return false;
+        });
+        $("form.delete").on("submit", function(){
+            $.ajax("/api/users/"+$("#delete_user_id").val()+"/notifications/"+$("#delete_notification_id").val(),
+                {dataType: 'json', data: {}, type : 'DELETE'}
+            );
+            return false;
+        });
+        $("form.deleteall").on("submit", function(){
+            $.ajax("/api/users/"+$("#deleteall_user_id").val()+"/notifications",
+                {dataType: 'json', data: {}, type : 'DELETE'}
+            );
+            return false;
+        });

@@ -64,7 +64,7 @@ module.exports = function(dbPool, notifier) {
                     [userId, param.title, param.isbn, param.price_min, param.price_max], function(err, result) {
                         connection.release();
                         if (err) {
-                            return Response.error(res, err, 'Did not create new user.');
+                            return Response.error(res, err, 'Did not create a new wish.');
                         }
                         notifier.wishlistAdded(param.title, param.isbn, param.price_min, param.price_max, userId, userName);
                         return Response.success(res, result);

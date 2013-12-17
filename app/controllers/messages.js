@@ -30,7 +30,7 @@ module.exports = function(dbPool, notifier) {
          * @param res { total: '', result: result}
          */
         all : function(req, res) {
-            var param = req.body;
+            var param = req.query;
             var userId = req.user.id;
             var totalCnt = 0;
             var sql = '';
@@ -48,13 +48,13 @@ module.exports = function(dbPool, notifier) {
                         totalCnt = result[0]['cnt'];
                     }
                     sql = 'SELECT * FROM message WHERE ' + getCondition(param.mode, userId);
+                    sql += ' ORDER BY ut DESC';
                     if (param.len && param.len > 0) {
                         sql += ' LIMIT ' + param.len;
                         if (param.offset && param.offset > 0) {
                             sql += ' OFFSET ' + param.offset;
                         }
                     }
-                    sql += ' ORDER BY ut DESC'
                     connection.query( sql, function(err, result) {
                         connection.release();
                         if (err) {

@@ -12,7 +12,7 @@ module.exports = function(dbPool) {
          * @param res { total: '', result: result}
          */
         all : function(req, res) {
-            var param = req.body;
+            var param = req.query;
             var userId = req.user.id;
             var totalCnt = 0;
             var sql = '';
