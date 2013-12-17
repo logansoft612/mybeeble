@@ -18,7 +18,8 @@ var IncreaseUnreadNotification = function ( users , connection , cb) {
             cb( false );
             return;
         }
-        connection.query("UPDATE user SET notification_cnt = notification_cnt + 1 WHERE id IN (??)", [users.join(',')], function(err, result) {
+        var sql = "UPDATE user SET notification_cnt = notification_cnt + 1 WHERE id IN ("+users.join(',')+")"
+        connection.query(sql, function(err, result) {
             if (err) {
                 cb( false );
             }
@@ -239,7 +240,7 @@ module.exports = function(dbPool) {
                 // Get "message title" and "Sender Name" by using      messageListID, senderID, messageID
                 connection.query('SELECT m.title, concat(u.first_name, " ", u.last_name) as name FROM message m ' +
                     'LEFT JOIN message_list ml ON m.id = ml.message_id ' +
-                    'LEFT JOIN user u ON  ml.from = u.id ' +
+                    'LEFT JOIN user u ON  ml.sender = u.id ' +
                     'WHERE ml.id = ? AND u.id = ? AND m.id=? ', [messageListId, senderId, messageId], function(err, result) {
 
                     if (err) {
@@ -253,7 +254,7 @@ module.exports = function(dbPool) {
                         return;
                     }
                     description = '<b>' + result[0].name + '</b> pinged: <b>"' + messageTruncate + '"</b> regarding <b>' + result[0].title + '</b>.';
-                    connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES ?',
+                    connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES (?, ?, ?, ?)',
                         [receiverId, MESSAGE_RECEIVED, description, linkTo], function (err, results) {
                         if (err) {
                             connection.release();

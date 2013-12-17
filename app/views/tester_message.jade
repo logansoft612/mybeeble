@@ -6,30 +6,35 @@ block content
     = ' ' + JSON.stringify(user)
     hr
     form.all.form-horizontal(method="get", role="form")
-        h1 Get All bookmarks
+        h1 Get All messages
         input.form-control#all_user_id(placeholder="user_id", type="text", value=user.id)
         input.form-control#all_offset(type="text", placeholder="Offset")
         input.form-control#all_len(type="text", placeholder="Length")
         button.btn.btn-primary(type="submit") Get All
     hr
     form.create.form-horizontal(method="post", role="form")
-        h1 Create new bookmark
-        input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
+        h1 Create new message box
+        input.form-control#create_user_id(name="sender", placeholder="Sender Id", type="text", value=user.id)
         br
-        input.form-control#create_book_id(placeholder="Textbook Id", type="text")
+        input.form-control#create_receiver_id( name="receiver", placeholder="Receiver Id", type="text")
+        input.form-control#create_title(name="title", placeholder="Message Box Subject", type="text")
+        textarea.form-control#create_content(name="content")
         button.btn.btn-primary(type="submit") Create
     hr
     form.get.form-horizontal
-        h1 Get bookmark info
+        h1 Get message info
         input.form-control#get_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#get_bookmark_id(placeholder="bookmark Id", type="text")
+        input.form-control#get_message_id(placeholder="message Id", type="text")
         button.btn.btn-primary(type="submit") Get Info
     hr
-    form.delete.form-horizontal
-        h1 Delete bookmark info
-        input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#delete_bookmark_id(placeholder="bookmark Id", type="text")
-        button.btn.btn-primary(type="submit") Delete
+    form.send.form-horizontal(method="post")
+        h1 Send message
+        input.form-control#send_message_id(placeholder="Message Box Id", type="text")
+        br
+        input.form-control#send_sender_id(name="sender", placeholder="Sender Id", type="text", value=user.id)
+        input.form-control#send_receiver_id(name="receiver", placeholder="Receiver Id", type="text")
+        textarea.form-control#send_content(name="content")
+        button.btn.btn-primary(type="submit") Send
 
     script.
         $("form.all").on("submit", function(){
@@ -40,29 +45,37 @@ block content
             if ($("#all_len").val().length != 0) {
                 frm.len = $("#all_len").val();
             }
-            $.ajax("/api/users/"+$("#all_user_id").val()+"/bookmarks",
+            $.ajax("/api/users/"+$("#all_user_id").val()+"/messages",
                 {dataType: 'json', data: frm, type : 'GET'}
             );
             return false;
         });
         $("form.create").on("submit", function(){
             var frm = {
-                book_id: $("#create_book_id").val()
+                sender: $("#create_user_id").val(),
+                receiver: $("#create_receiver_id").val(),
+                title: $("#create_title").val(),
+                content: $("#create_content").val()
             };
-            $.ajax("/api/users/"+$("#create_user_id").val()+"/bookmarks",
+            $.ajax("/api/users/"+$("#create_user_id").val()+"/messages",
                 {dataType: 'json', data: frm, type : 'POST'}
             );
             return false;
         });
         $("form.get").on("submit", function(){
-            $.ajax("/api/users/"+$("#get_user_id").val()+"/bookmarks/"+$("#get_bookmark_id").val(),
+            $.ajax("/api/users/"+$("#get_user_id").val()+"/messages/"+$("#get_message_id").val(),
                 {dataType: 'json', data: {}, type : 'GET'}
             );
             return false;
         });
-        $("form.delete").on("submit", function(){
-            $.ajax("/api/users/"+$("#delete_user_id").val()+"/bookmarks/"+$("#delete_bookmark_id").val(),
-                {dataType: 'json', data: {}, type : 'DELETE'}
+        $("form.send").on("submit", function(){
+            var frm = {
+                sender: $("#send_sender_id").val(),
+                receiver: $("#send_receiver_id").val(),
+                content: $("#send_content").val()
+            };
+            $.ajax("/api/users/"+$("#create_user_id").val()+"/messages/"+$("#send_message_id").val(),
+                {dataType: 'json', data: frm, type : 'POST'}
             );
             return false;
         });

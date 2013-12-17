@@ -26,20 +26,20 @@ module.exports = function (app, passport, auth, dbPool) {
 
     var wishes = require('../app/controllers/wishes')(dbPool, notification);
     //app.get('/api/wishes', wishes.adminAll);
-    app.get('/api/users/:userId/wishes', wishes.all);
-    app.post('/api/users/:userId/wishes', wishes.create);
-    app.get('/api/users/:userId/wishes/:wishId', wishes.read);
-    app.put('/api/users/:userId/wishes/:wishId', wishes.update);
-    app.del('/api/users/:userId/wishes/:wishId', wishes.delete);
+    app.get('/api/users/:userId/wishes', auth.requiresLogin, auth.user.hasAuthorization, wishes.all);
+    app.post('/api/users/:userId/wishes, auth.requiresLogin, auth.user.hasAuthorization', wishes.create);
+    app.get('/api/users/:userId/wishes/:wishId', auth.requiresLogin, auth.user.hasAuthorization, wishes.read);
+    app.put('/api/users/:userId/wishes/:wishId', auth.requiresLogin, auth.user.hasAuthorization, wishes.update);
+    app.del('/api/users/:userId/wishes/:wishId', auth.requiresLogin, auth.user.hasAuthorization, wishes.delete);
 
     //app.param('wishId', wishes.wish);
 
     var bookmarks = require('../app/controllers/bookmarks')(dbPool, notification);
     //app.get('/api/bookmarks', bookmarks.adminAll);
-    app.get('/api/users/:userId/bookmarks', bookmarks.all);
-    app.post('/api/users/:userId/bookmarks', bookmarks.create);
-    app.get('/api/users/:userId/bookmarks/:bookmarkId', bookmarks.read);
-    app.del('/api/users/:userId/bookmarks/:bookmarkId', bookmarks.delete);
+    app.get('/api/users/:userId/bookmarks', auth.requiresLogin, auth.user.hasAuthorization, bookmarks.all);
+    app.post('/api/users/:userId/bookmarks', auth.requiresLogin, auth.user.hasAuthorization, bookmarks.create);
+    app.get('/api/users/:userId/bookmarks/:bookmarkId', auth.requiresLogin, auth.user.hasAuthorization, bookmarks.read);
+    app.del('/api/users/:userId/bookmarks/:bookmarkId', auth.requiresLogin, auth.user.hasAuthorization, bookmarks.delete);
 
     //app.param('bookmarkId', bookmarks.bookmark);
 
@@ -50,12 +50,12 @@ module.exports = function (app, passport, auth, dbPool) {
     //app.param('bookId', books.book);
 
     var posts = require('../app/controllers/posts')(dbPool, notification);
-    app.get('/api/users/:userId/posts', posts.search);
-    app.post('/api/users/:userId/posts', posts.create);
-    app.get( '/api/users/:userId/posts/:postId', posts.get);
-    app.post('/api/users/:userId/posts/:postId', posts.update);    ///--- This should be changed to PUT method
+    app.get('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.search);
+    app.post('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.create);
+    app.get( '/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.get);
+    app.post('/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.update);    ///--- This should be changed to PUT method
     //app.post('/api/users/:userId/updateposts', posts.update);    ///--- This should be changed to PUT method
-    app.del('/api/users/:userId/posts/:postId', posts.delete);
+    app.del('/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.delete);
 
     //app.param('postId', posts.post);
 
@@ -63,15 +63,16 @@ module.exports = function (app, passport, auth, dbPool) {
     //Condition Routes
     var messages = require('../app/controllers/messages')(dbPool, notification);
     //app.get('/api/messages', messages.adminAll);
-    app.get('/api/users/:userId/messages', messages.all);
-    app.get('/api/users/:userId/messages/:messageId', messages.get);
-    app.post('/api/users/:userId/messages/:messageId', messages.send);
+    app.get('/api/users/:userId/messages', auth.requiresLogin, auth.user.hasAuthorization, messages.all);
+    app.post('/api/users/:userId/messages', auth.requiresLogin, auth.user.hasAuthorization, messages.create);
+    app.get('/api/users/:userId/messages/:messageId', auth.requiresLogin, auth.user.hasAuthorization, messages.get);
+    app.post('/api/users/:userId/messages/:messageId', auth.requiresLogin, auth.user.hasAuthorization, messages.send);
 
     //app.param('messageId', messages.get);
 
     //app.get('/api/notifications', notification.adminAll);
-    app.get('/api/users/:userId/notifications', notification.all);
-    app.get('/api/users/:userId/notifications/unread', notification.unread);
+    app.get('/api/users/:userId/notifications', auth.requiresLogin, auth.user.hasAuthorization, notification.all);
+    app.get('/api/users/:userId/notifications/unread', auth.requiresLogin, auth.user.hasAuthorization, notification.unread);
 
     var index = require('../routes/index');
     app.get('/', index.index);

@@ -9,12 +9,12 @@ var DESCRIPTION_LEN = 100;
 function getCondition( mode , id) {
     if (mode) {
         if (mode == "inbox") {
-            return " to = "+id;
+            return " receiver = "+id;
         } else if (mode == "sent") {
-            return " from = "+id;
+            return " sender = "+id;
         }
     }
-    return " from = "+id+" AND to = "+id;
+    return " sender = "+id+" OR receiver = "+id;
 }
 function getTruncateDescription (text) {
     if(text.length < DESCRIPTION_LEN) {
@@ -40,14 +40,14 @@ module.exports = function(dbPool, notifier) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( "SELECT COUNT(*) as cnt FROM message WHERE " + getCondition(param.mode), function(err, result) {
+                connection.query( "SELECT COUNT(*) as cnt FROM message WHERE " + getCondition(param.mode, userId), function(err, result) {
                     if (err) {
                         return Response.error(res, err, 'You can not get wish list. Sorry for inconvenient');
                     }
                     if(result.length > 0) {
                         totalCnt = result[0]['cnt'];
                     }
-                    sql = 'SELECT * FROM message WHERE ' + getCondition(param.mode);
+                    sql = 'SELECT * FROM message WHERE ' + getCondition(param.mode, userId);
                     if (param.len && param.len > 0) {
                         sql += ' LIMIT ' + param.len;
                         if (param.offset && param.offset > 0) {
@@ -75,19 +75,19 @@ module.exports = function(dbPool, notifier) {
          * response
          * {
          *  id   :
-         *  from :
-         *  to   :
+         *  sender :
+         *  receiver   :
          *  title:
          *  truncate:
          *  ct   :
          *  ut   :
-         *  fromName:
-         *  toName:
+         *  senderName:
+         *  receiverName:
          *  messages: [
          *      {
          *          id:
-         *          from:
-         *          to:
+         *          sender:
+         *          receiver:
          *          content:
          *          ut:
          *      }, ...
@@ -105,11 +105,11 @@ module.exports = function(dbPool, notifier) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query('SELECT m.*, concat(uf.first_name, " ", uf.last_name) fromName, concat(ut.first_name, " ", ut.last_name) toName ' +
+                connection.query('SELECT m.*, concat(uf.first_name, " ", uf.last_name) senderName, concat(ut.first_name, " ", ut.last_name) receiverName ' +
                     'FROM message m ' +
-                    'LEFT JOIN user uf ON uf.id = m.from ' +
-                    'LEFT JOIN user ut ON ut.id = m.to ' +
-                    'WHERE m.id = ? AND ( m.from = ? OR m.to = ? )',
+                    'LEFT JOIN user uf ON uf.id = m.sender ' +
+                    'LEFT JOIN user ut ON ut.id = m.receiver ' +
+                    'WHERE m.id = ? AND ( m.sender = ? OR m.receiver = ? )',
                     [messageId, userId, userId], function(err, result) {
                         if (err) {
                             return Response.error(res, err, 'Did not find this message. Sorry for inconvenience.');
@@ -117,10 +117,10 @@ module.exports = function(dbPool, notifier) {
                         if(result.length == 0) {
                             return Response.error(res, err, 'Can not find this message.');
                         }
-                        messageDetail = result;
-                        connection.query( 'SELECT ml.id, ml.from, ml.to, ml.ut, ml.content' +
+                        messageDetail = result[0];
+                        connection.query( 'SELECT ml.id, ml.sender, ml.receiver, ml.ut, ml.content ' +
                             'FROM message_list ml ' +
-                            'WHERE ml.message_id = ? AND ( ml.from = ? OR ml.to = ? ) ' +
+                            'WHERE ml.message_id = ? AND ( ml.sender = ? OR ml.receiver = ? ) ' +
                             'ORDER BY ml.ut DESC',
                             [messageId, userId, userId], function(err, result2) {
                                 connection.release();
@@ -141,7 +141,7 @@ module.exports = function(dbPool, notifier) {
          * Create new records on message and message_list.
          *
          * method POST
-         * @param req [ from, to, title, content ]
+         * @param req [ sender, receiver, title, content ]
          * @param res
          * @url_param - none
          *
@@ -154,9 +154,9 @@ module.exports = function(dbPool, notifier) {
         create : function(req, res) {
             var param = req.body;
             var userId = req.user.id;
-            //var param = {from: 1, to: 3, title: 'inserted from api', content: 'custom content'};
+            //var param = {sender: 1, receiver: 3, title: 'inserted sender api', content: 'custom content'};
             //var userId = '1';
-            if( param.from != userId) {
+            if( param.sender != userId) {
                 return Response.error(res, null, 'Can not create new message. The message creator does not correct.');
             }
 
@@ -164,21 +164,21 @@ module.exports = function(dbPool, notifier) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'INSERT INTO message(from, to, title, truncate) ' +
+                connection.query( 'INSERT INTO message(sender, receiver, title, truncate) ' +
                     'values (?, ?, ?, ?)',
-                    [userId, param.to, param.title, getTruncateDescription(param.content)], function(err, result) {
+                    [userId, param.receiver, param.title, getTruncateDescription(param.content)], function(err, result) {
                         if (err) {
                             connection.release();
                             return Response.error(res, err, 'Did not create new message. Sorry for inconvenient.');
                         }
-                        connection.query( 'INSERT INTO message_list(message_id, from, to, content) ' +
+                        connection.query( 'INSERT INTO message_list(message_id, sender, receiver, content) ' +
                             'values (?, ?, ?, ?)',
-                            [result.insertId, param.to, param.content], function(err, result2) {
+                            [result.insertId, userId, param.receiver, param.content], function(err, result2) {
                                 connection.release();
                                 if (err) {
                                     return Response.error(res, err, 'Did not create new message - 2. Sorry for inconvenient.');
                                 }
-                                notifier.messageSent();
+                                notifier.messageSent(userId, param.receiver, getTruncateDescription(param.content), result.insertId, result2.insertId );
                                 return Response.success(res, {message: result, content: result2});
                             });
                     });
@@ -187,32 +187,36 @@ module.exports = function(dbPool, notifier) {
 
         /**
          *
-         * @param req  [title, from, to, content ]
+         * @param req  [sender, receiver, content ]
          * @param res
          * @url_param - messageId
          */
         send : function(req, res) {
             var param = req.body;
             var messageId = req.params.messageId;
-            var userId = req.user.id;
+            var userId = req.params.userId;
+            if( param.sender != userId) {
+                return Response.error(res, null, 'Can not create new message. The message creator does not correct.');
+            }
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'UPDATE message SET truncate = ? WHERE id=?' +
+                connection.query( 'UPDATE message SET truncate = ? WHERE id=?',
                     [ getTruncateDescription(param.content) , messageId], function(err, result) {
                         if (err || result.affectedRows == 0) {
                             connection.release();
                             return Response.error(res, err, 'Did not send message. Sorry for inconvenient.');
                         }
-                        connection.query( 'INSERT INTO message_list(from, to, content) ' +
-                            'values (?, ?, ?)',
-                            [userId, param.to, param.content], function(err, result2) {
+                        connection.query( 'INSERT INTO message_list(message_id, sender, receiver, content) ' +
+                            'values (?, ?, ?, ?)',
+                            [messageId, userId, param.receiver, param.content], function(err, result2) {
                                 connection.release();
                                 if (err  || result2.affectedRows == 0) {
                                     return Response.error(res, err, 'Did not send message. Sorry for inconvenient.');
                                 }
+                                notifier.messageSent(userId, param.receiver, getTruncateDescription(param.content), messageId, result2.insertId );
                                 return Response.success(res, result2);
                             })
                     });
