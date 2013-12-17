@@ -58,9 +58,9 @@ module.exports = function(dbPool, notifier) {
                 console.log(req.files);
                 var tmp_path = req.files.coverfile.path;
                 var todayFolder = util.getTodayAsString();
-                var folderName = config.root + '/public/' + todayFolder;
+                var folderName = config.root + '/public/covers/' + todayFolder;
                 var target_filename = Util.getTickTime() + req.files.coverfile.originalFilename;
-                coverPath = todayFolder + '/' + target_filename;
+                coverPath = "/covers/" + todayFolder + '/' + target_filename;
                 var target_path = folderName + '/' + target_filename;
                 console.log(folderName);
                 if(!fs.lstatSync(folderName).isDirectory()) {
@@ -84,7 +84,7 @@ module.exports = function(dbPool, notifier) {
                     contactInfo = param.contact;
                 }
                 connection.query( 'INSERT INTO textbook(category_id, title, author, isbn13, publisher, type, price, description, zip, owner_id, old, contact, coverpath) ' +
-                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, userId, param.isold, contactInfo, coverPath],
                     function(err, result) {
                         connection.release();

@@ -1,10 +1,19 @@
 doctype 5
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src='http://code.jquery.com/jquery-1.10.1.min.js')
-  body
-    if user
-        include ./nav
-    block content
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        script(src='http://code.jquery.com/jquery-1.10.1.min.js')
+    body
+        pre#request_log
+        if user
+            include ./nav
+        block content
+
+
+        script.
+            $(document).ajaxComplete(function(event, xhr, settings) {
+                $("#request_log").html('');
+                $("<p>").html(settings.type + " " + settings.url).appendTo($("#request_log"));
+                $("<p>").html(xhr.responseText).appendTo($("#request_log"));
+            });

@@ -12,7 +12,7 @@ module.exports = function(dbPool, notifier) {
          * @param res { total: '', result: result}
          */
         all : function(req, res) {
-            var param = req.body;
+            var param = req.query;
             var userId = req.user.id;
             var totalCnt = 0;
             var sql = '';
@@ -93,7 +93,7 @@ module.exports = function(dbPool, notifier) {
                             return Response.error(res, err, 'Did not find wish.');
                         }
                         if(result.length == 0) {
-                            return Response.error(res, result, 'You do not have permission.');
+                            return Response.error(res, result, 'Can not find the wish.');
                         }
                         return Response.success(res, result);
                     })
@@ -116,7 +116,7 @@ module.exports = function(dbPool, notifier) {
                         return Response.error(res, err, 'Did not update a wish info.');
                     }
                     if(result.affectedRows == 0) {
-                        return Response.error(res, result, 'You do not have permission.');
+                        return Response.error(res, result, 'Can not find the wish.');
                     }
                     return Response.success(res, result);
                 })

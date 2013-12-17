@@ -5,86 +5,93 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 Modify User Profile
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
+    form.all.form-horizontal
+        h1 Get All wishes
+        input.form-control#all_user_id(placeholder="user_id", type="text", value=user.id)
+        input.form-control#all_offset(type="text", placeholder="Offset")
+        input.form-control#all_len(type="text", placeholder="Length")
+        button.btn.btn-primary(type="submit") Get All
+    hr
+    form.create.form-horizontal
+        h1 Create new wish
+        input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
+        br
+        input.form-control#create_title(placeholder="Title", type="text")
+        input.form-control#create_isbn(placeholder="isbn", type="text")
+        input.form-control#create_price_min(placeholder="Price Min", type="text")
+        input.form-control#create_price_max(placeholder="Price Max", type="text")
+        button.btn.btn-primary(type="submit") Create
+    hr
+    form.get.form-horizontal
+        h1 Get Wish info
+        input.form-control#get_user_id(placeholder="user_id", type="text", value=user.id)
+        input.form-control#get_wish_id(placeholder="Wish Id", type="text")
+        button.btn.btn-primary(type="submit") Get Info
+    hr
+    form.update.form-horizontal
+        h1 Update Wish Info
+        input.form-control#update_user_id(placeholder="User Id", type="text", value=user.id)
+        input.form-control#update_wish_id(placeholder="Wish Id", type="text")
+        br
+        input.form-control#update_title(placeholder="Title", type="text")
+        input.form-control#update_isbn(placeholder="isbn", type="text")
+        input.form-control#update_price_min(placeholder="Price Min", type="text")
+        input.form-control#update_price_max(placeholder="Price Max", type="text")
+        button.btn.btn-primary(type="submit") Update
+    hr
+    form.delete.form-horizontal
+        h1 Delete Wish info
+        input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
+        input.form-control#delete_wish_id(placeholder="Wish Id", type="text")
+        button.btn.btn-primary(type="submit") Delete
 
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Post
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Wish
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Wish
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
+    script.
+        $("form.all").on("submit", function(){
+            var frm = {};
+            if ($("#all_offset").val().length != 0) {
+                frm.offset = $("#all_offset").val();
+            }
+            if ($("#all_len").val().length != 0) {
+                frm.len = $("#all_len").val();
+            }
+            $.ajax("/api/users/"+$("#all_user_id").val()+"/wishes",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.create").on("submit", function(){
+            var frm = {
+                title: $("#create_title").val(),
+                isbn: $("#create_isbn").val(),
+                price_min: $("#create_price_min").val(),
+                price_max: $("#create_price_max").val()
+            };
+            $.ajax("/api/users/"+$("#create_user_id").val()+"/wishes",
+                {dataType: 'json', data: frm, type : 'POST'}
+            );
+            return false;
+        });
+        $("form.get").on("submit", function(){
+            $.ajax("/api/users/"+$("#get_user_id").val()+"/wishes/"+$("#get_wish_id").val(),
+                {dataType: 'json', data: {}, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.update").on("submit", function(){
+            var frm = {
+                title: $("#update_title").val(),
+                isbn: $("#update_isbn").val(),
+                price_min: $("#update_price_min").val(),
+                price_max: $("#update_price_max").val()
+            };
+            $.ajax("/api/users/"+$("#update_user_id").val()+"/wishes/"+$("#update_wish_id").val(),
+                {dataType: 'json', data: frm, type : 'PUT'}
+            );
+            return false;
+        });
+        $("form.delete").on("submit", function(){
+            $.ajax("/api/users/"+$("#delete_user_id").val()+"/wishes/"+$("#delete_wish_id").val(),
+                {dataType: 'json', data: {}, type : 'DELETE'}
+            );
+            return false;
+        });
