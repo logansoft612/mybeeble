@@ -5,86 +5,42 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 Modify User Profile
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
+    form.search.form-horizontal(action="/api/posts", method="get", role="form")
+        h1 Search Your book
+        input.form-control#keyword( type="text", name="keyword", placeholder="title, isbn, author keyword")
+        input.form-control#zip(name="zip", placeholder="Zip code", type="text")
+        input.form-control#distance(name="distance", placeholder="Distance", type="text")
+        input.form-control#price_min(name="price_min", placeholder="Price Min", type="text")
+        input.form-control#price_max(name="price_max", placeholder="Price Max", type="text")
+        input.form-control#cover(name="cover", placeholder="Cover", type="text")
+        input.form-control#category(name="category", placeholder="Category ID", type="text")
 
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
+        button.btn.btn-primary(type="submit") Search
+    hr
+    form.get.form-horizontal(action="/api/posts", method="get", role="form")
+        h1 Search Your book
+        input.form-control#book_id( type="text", name="book_id", placeholder="Book Id")
 
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Post
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Wish
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
-
-    form.signin.form-horizontal(action="/api/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 submit new Wish
-        .form-group
-            label.col-lg-2.control-label(for="userPhotoInput") File
-            .col-lg-10
-                input#userPhotoInput( type="file", name="displayImage")
-
-        .form-group
-            label.col-lg-2.control-label(for="email") Email
-            .col-lg-10
-                input.form-control#username(name="username", placeholder="Email", type="text")
-
-        .form-group
-            label.col-lg-2.control-label(for="password") Password
-            .col-lg-10
-                input.form-control#password(name="password", placeholder="Password", type="password")
-
-        .form-group
-            .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Sign in
+        button.btn.btn-primary(type="submit") Get
+    script.
+        $("form.search").on("submit", function(){
+            var frm = {
+                keyword: $("#keyword").val()
+            };
+            if( $("#zip").val() != "" ) { frm.zip = $("#zip").val(); }
+            if( $("#distance").val() != "" ) { frm.distance = $("#distance").val(); }
+            if( $("#price_min").val() != "" ) { frm.price_min = $("#price_min").val(); }
+            if( $("#price_max").val() != "" ) { frm.price_max = $("#price_max").val(); }
+            if( $("#cover").val() != "" ) { frm.cover = $("#cover").val(); }
+            if( $("#category").val() != "" ) { frm.category = $("#category").val(); }
+            $.ajax("/api/books",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.get").on("submit", function(){
+            $.ajax("/api/books/"+$("#book_id").val(),
+                {dataType: 'json', data: {}, type : 'GET'}
+            );
+            return false;
+        });

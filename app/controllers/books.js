@@ -16,9 +16,7 @@ module.exports = function(dbPool) {
          * keyword : auth, title, isbn, publisher
          */
         all : function(req, res) {
-            var param = req.body;
-            var userId = req.user.id;
-            var userZip = req.user.zip;
+            var param = req.query;
             var totalCnt = 0;
             var idx = 0;
             var sql = '';
@@ -37,13 +35,10 @@ module.exports = function(dbPool) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                escapedString = connection.escapeId(param.keyword);
-                sql = 'SELECT * FROM textbook ' +
-                    'WHERE del=0 AND ' +
-                    '( isbn13 LIKE "%' + escapedString + '%" OR ' +
-                    'author LIKE "%' + escapedString + '%" OR ' +
-                    'title LIKE "%' + escapedString + '%" OR ' +
-                    'publisher LIKE "%' + escapedString + '%")';
+                escapedString = '%' + param.keyword + '%';
+                sql = connection.format('SELECT * FROM textbook ' +
+                    'WHERE del=0 AND ( isbn13 LIKE ? OR author LIKE ? OR title LIKE ? OR publisher LIKE ?)'
+                    ,[escapedString, escapedString, escapedString, escapedString]);
                 if (param.category) {
                     sql += ' AND category_id=' + param.category;
                 }
@@ -74,11 +69,12 @@ module.exports = function(dbPool) {
                         if (result.length == 0) {
                             return Response.success(res, []);
                         }
-                        escapedString = result[0];
+                        escapedString = connection.escape(result[0].zip);
                         for(idx = 1; idx < result.length; idx++) {
-                            escapedString += ", " + connection.escape(result[idx]);
+                            escapedString += ", " + connection.escape(result[idx].zip);
                         }
                         sql += ' AND zip IN (' + escapedString +')';
+                        console.log(sql);
                         connection.query( sql, function(err, result) {
                             connection.release();
                             if (err) {
@@ -88,6 +84,7 @@ module.exports = function(dbPool) {
                         });
                     });
                 } else {
+                    console.log(sql);
                     connection.query( sql, function(err, result) {
                         connection.release();
                         if (err) {
@@ -96,18 +93,6 @@ module.exports = function(dbPool) {
                         return Response.success(res, result);
                     });
                 }
-                /*
-                 SELECT z.*, o.*, (6371 * 2 * ASIN(SQRT(
-                 POWER(SIN((o.org_lat - abs(z.latitude)) * pi()/180 / 2),
-                 2) + COS(o.org_lat * pi()/180 ) * COS(abs(z.latitude) *
-                 pi()/180) * POWER(SIN((o.org_long - z.longitude) *
-                 pi()/180 / 2), 2) ))) as distance
-                 FROM zcta z
-                 LEFT JOIN (SELECT latitude org_lat, longitude org_long, zip org_zip
-                 FROM zcta where zip = '00601') o ON 1=1
-                 having distance <= 60;
-                * */
-
 
             });
         },
@@ -129,11 +114,13 @@ module.exports = function(dbPool) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                sql = 'SELECT tb.*, u.username ow_username, u.email ow_email, u.first_name ow_firstname, u.last_name ow_lastname, u.phone ow_phone, u.address ow_address, u.zip ow_zip ' +
+                sql = 'SELECT tb.*, u.username ow_username, u.email ow_email, u.first_name ow_firstname, u.last_name ow_lastname, u.phone ow_phone, u.address ow_address, u.zip ow_zip, c.title category_title, c.slug category_slug, z.latitude, z.longitude, z.city, z.state ' +
                     'FROM textbook tb ' +
                     'LEFT JOIN user u ON u.id = tb.owner_id ' +
-                    'WHERE id = ?'
-                connection.query( sql, function(err, result) {
+                    'LEFT JOIN category c ON c.id = tb.category_id ' +
+                    'LEFT JOIN zcta z ON z.zip = tb.zip ' +
+                    'WHERE tb.id = ?'
+                connection.query( sql, [bookId], function(err, result) {
                     connection.release();
                     if (err) {
                         return Response.error(res, err, 'You can not find books for now. Sorry for inconvenient');
@@ -141,7 +128,7 @@ module.exports = function(dbPool) {
                     if (result.length == 0) {
                         return Response.error(res, err, 'Can not find book for this ID.');
                     }
-                    return Response.success(res, result);
+                    return Response.success(res, result[0]);
                 });
             });
         }
