@@ -230,7 +230,7 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'SELECT * FROM user WHERE userId = ?', [userId], function(err, result) {
+                connection.query( 'SELECT * FROM user WHERE id = ?', [userId], function(err, result) {
                     connection.release();
                     if (err) {
                         return Response.error(res, err, 'Did not find this user.');
