@@ -13,7 +13,7 @@ module.exports = function(passport, dbPool) {
             if (err) {
                 return done(err, null);
             }
-            connection.query("SELECT * FROM user WHERE id = ?", [id], function(err, user) {
+            connection.query("SELECT id as user_id, * FROM user WHERE id = ?", [id], function(err, user) {
                 connection.release();
                 done(err, user[0]);
             });
@@ -33,7 +33,7 @@ module.exports = function(passport, dbPool) {
                 if (err) {
                     return done(err);
                 }
-                connection.query("SELECT * FROM user WHERE username = ? AND password = MD5(?)", [username, password], function(err, user) {
+                connection.query("SELECT id as user_id, * FROM user WHERE username = ? AND password = MD5(?)", [username, password], function(err, user) {
                     connection.release();
                     if (err) {
                         return done(err);

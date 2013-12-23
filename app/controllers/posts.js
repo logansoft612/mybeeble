@@ -1,11 +1,11 @@
 /**
  * Module dependencies.
  */
-var _ = require('underscore');
-var fs = require('fs');
-var Response = require('../util/response');
-var Util = require('../util/util');
-var config = require('../../config/config');
+var _           = require('underscore');
+var fs          = require('fs');
+var Response    = require('../util/response');
+var Util        = require('../util/util');
+var config      = require('../../config/config');
 
 module.exports = function(dbPool, notifier) {
     return {
@@ -40,7 +40,7 @@ module.exports = function(dbPool, notifier) {
 
         /**
          *
-         * @param req [ title, isbn, author, category(ID), publisher, zip, price, address, description, isold, contact ( string array or string) [email, text, call], cover ]
+         * @param req [ title, isbn, author, category(ID), publisher, zip, price, address, description, isold, contact ( string array or string) [email, text, call], cover, email, phone, by_phone, by_email, by_text]
          * @param res
          */
         create : function(req, res) {
@@ -82,9 +82,9 @@ module.exports = function(dbPool, notifier) {
                 } else {
                     contactInfo = param.contact;
                 }
-                connection.query( 'INSERT INTO textbook(category_id, title, author, isbn13, publisher, type, price, description, zip, owner_id, old, contact, coverpath) ' +
-                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, userId, param.isold, contactInfo, coverPath],
+                connection.query( 'INSERT INTO textbook(category_id, title, author, isbn13, publisher, type, price, description, zip, owner_id, old, contact, coverpath, condition, email, phone, by_phoone, by_text, by_email) ' +
+                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, userId, param.isold, contactInfo, coverPath, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email],
                     function(err, result) {
                         connection.release();
                         if (err) {
@@ -152,7 +152,7 @@ module.exports = function(dbPool, notifier) {
 
         /**
          *
-         * @param req [ title, isbn, author, category, publisher, zip, price, address, description, isOld, contact ( string array or string) [email, text, call], cover ]
+         * @param req [ title, isbn, author, category, publisher, zip, price, address, description, isOld, contact ( string array or string) [email, text, call], cover, email, phone, by_phone, by_email, by_text ]
          * @param res
          * @url_param - postId
          */
@@ -199,14 +199,14 @@ module.exports = function(dbPool, notifier) {
                 }
                 if(coverPath === "") {
                     sql = connection.format('UPDATE textbook SET category_id=?, title=?, author=?, isbn13=?, publisher=?, ' +
-                        ' type=?, price=?, description=?, zip=?, old=?, contact=? ' +
+                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, condition=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
                         ' WHERE owner_id = ? AND id = ? '
-                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, userId, postId]);
+                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
                 } else {
                     sql = connection.format('UPDATE textbook SET category_id=?, title=?, author=?, isbn13=?, publisher=?, ' +
-                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, coverpath=? ' +
+                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, coverpath=?, condition=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
                         ' WHERE owner_id = ? AND id = ? '
-                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, coverPath, userId, postId]);
+                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, coverPath, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
                 }
 
                 connection.query( sql,function(err, result) {

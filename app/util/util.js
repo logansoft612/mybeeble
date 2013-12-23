@@ -4,6 +4,10 @@
  * Time: 11:05 PM
  * To change this template use File | Settings | File Templates.
  */
+
+var config          = require('../../config/config');
+var fs              = require('fs');
+
 exports.generateRandomPassword = function() {
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
     var string_length = 8;
@@ -34,4 +38,29 @@ exports.getTodayAsString = function() {
 exports.getTickTime = function() {
     var today = new Date()
     return today.getTime().toString();
+}
+exports.moveUploadedFile = function(srcFile, dstPath, dstPrefix) {
+    var newFilename = "";
+    var definedPrefix = dstPrefix || "";
+
+    var tmp_path = srcFile.path;
+    var todayFolder = this.getTodayAsString();
+    var folderName = config.root + '/public/avatar/' + todayFolder;
+    var target_filename = Util.getTickTime() + userId + srcFile.originalFilename;
+    profilePath = "/avatar/" + todayFolder + '/' + target_filename;
+    var target_path = folderName + '/' + target_filename;
+    try {
+        if(!fs.lstatSync(folderName).isDirectory()) {
+            fs.mkdirSync(folderName);
+        }
+    } catch (e) {
+        fs.mkdirSync(folderName);
+    }
+    fs.rename(tmp_path, target_path, function(err) {
+        if(err) {
+            console.log("---file move error.", err);
+        }
+    });
+
+    return newFilename;
 }

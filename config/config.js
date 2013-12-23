@@ -13,6 +13,8 @@ module.exports = {
     wait_timeout : 1000
   },
   root : rootPath,
+//  cover_path: rootPath + '/public/covers',
+//  avatar_path: rootPath + '/public/avatar',
   port : 3000,
   curlPath: {
       zipInRadius : "http://zipcodedistanceapi.redline13.com/rest/cdVnHmC9UXF5ltFIm4Cff7aDO4Fn6Mzi0uGHRiQLgwRB0xkmBWBQ4LuSQ9gXVQfW/radius.json/71959/50/km"

@@ -5,6 +5,8 @@ var _               = require('underscore');
 var Response        = require('../util/response');
 var Util            = require('../util/util');
 var EmailHelper     = require('../util/emailer');
+var config          = require('../../config/config');
+var fs              = require('fs');
 
 module.exports = function(dbPool, passport) {
     return {
@@ -30,7 +32,7 @@ module.exports = function(dbPool, passport) {
 
         /**
          *
-         * @param req [ username, email, password, first_name, last_name, phone, address, zip ]
+         * @param req [ username, email, password, first_name, last_name, phone, address, zip, terms ]
          * @param res
          */
         create : function(req, res) {
@@ -40,9 +42,9 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'INSERT INTO user(username, email, password, first_name, last_name, phone, address, zip) ' +
-                    'values (?, ?, MD5(?), ?, ?, ?, ?, ?)',
-                    [param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip], function(err, results) {
+                connection.query( 'INSERT INTO user(username, email, password, first_name, last_name, phone, address, zip, terms) ' +
+                    'values (?, ?, MD5(?), ?, ?, ?, ?, ?, ?)',
+                    [param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, param.terms], function(err, results) {
                         connection.release();
                         if (err) {
                             return Response.error(res, err, 'Did not create new user.');
@@ -54,19 +56,46 @@ module.exports = function(dbPool, passport) {
 
         /**
          *
-         * @param req [ username, email, password, first_name, last_name, phone, address, zip ]
+         * @param req [ username, email, password, first_name, last_name, phone, address, zip, profile_img, major, minor, grad_date ]
          * @param res
          * @url_param - userId
          */
         update : function(req, res) {
             var param = req.body;
             var userId = req.params.userId;
+            var profilePath = "";
+            if(req.files) {
+                if (req.files.profile_img.originalFilename === "") {
+                    fs.unlink(req.files.profile_img.path);
+                } else {
+                    var tmp_path = req.files.profile_img.path;
+                    var todayFolder = Util.getTodayAsString();
+                    var folderName = config.root + '/public/avatar/' + todayFolder;
+                    var target_filename = Util.getTickTime() + userId + req.files.profile_img.originalFilename;
+                    profilePath = "/avatar/" + todayFolder + '/' + target_filename;
+                    var target_path = folderName + '/' + target_filename;
+                    try {
+                        if(!fs.lstatSync(folderName).isDirectory()) {
+                            fs.mkdirSync(folderName);
+                        }
+                    } catch (e) {
+                        fs.mkdirSync(folderName);
+                    }
+                    fs.rename(tmp_path, target_path, function(err) {
+                        if(err) {
+                            console.log("---file move error.", err);
+                        }
+                    });
+                }
+            }
+
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'UPDATE user SET username=?, email=?, password=MD5(?), first_name=?, last_name=?, phone=?, address=?, zip=? WHERE id=?',
-                    [param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, userId], function(err, results) {
+                connection.query( 'UPDATE user SET username=?, email=?, password=MD5(?), first_name=?' +
+                    ', last_name=?, phone=?, address=?, zip=?, profile_img=?, major=?, minor=?, grad_date=? WHERE id=?'
+                    ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profilePath, param.major, param.minor, param.grad_date, userId], function(err, results) {
                         connection.release();
                         if (err) {
                             return Response.error(res, err, 'Did not modify the user\'s profile.');
@@ -134,7 +163,7 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'SELECT * FROM user WHERE id = ?', [id], function(err, result) {
+                connection.query( 'SELECT id as user_id, * FROM user WHERE id = ?', [id], function(err, result) {
                     connection.release();
                     if (err) {
                         return Response.error(res, err, 'Did not create new user.');
@@ -228,17 +257,93 @@ module.exports = function(dbPool, passport) {
             var userId = req.params.userId;
             dbPool.getConnection(function(err, connection){
                 if (err) {
-                    return Response.error(res, err, 'Can not get db connection.');
+                    return Response.error(res, err, 'Can not get db connection. Sorry for inconvenient.');
                 }
                 connection.query( 'SELECT * FROM user WHERE id = ?', [userId], function(err, result) {
                     connection.release();
                     if (err) {
-                        return Response.error(res, err, 'Did not find this user.');
+                        return Response.error(res, err, 'Can not find this user. Sorry for inconvenient.');
                     }
                     if (result.length == 0) {
                         return Response.error(res, err, 'Did not find this user.');
                     }
                     return Response.success(res, result[0]);
+                });
+            });
+        },
+
+        /**
+         * Give feedback to a user.
+         * @METHOD POST
+         *
+         * @param req { rated_user_id : {number} , rate : {number}, comment : {string}, transaction_id: {string} }
+         * @param res {success: 1, result: {} }
+         * @url_param - userId
+         */
+        rate: function() {
+            var userId = req.params.userId;
+            var param = req.body;
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.  Sorry for inconvenient.');
+                }
+                connection.query( 'INSERT INTO user_feedback(user_id, marker_id, mark, comment, transaction_id) ' +
+                'values (?, ?, ?, ?, ?)', [param.rated_user_id, userId, param.rate, param.comment, param.tranaction_id], function(err, result) {
+                    if (err) {
+                        connection.release();
+                        return Response.error(res, err, 'Can not not give feedback. Sorry for inconvenient.');
+                    }
+                    connection.query( 'UPDATE user SET feedback=(SELECT avg(rate) FROM user_feedback WHERE user_id=?) WHERE id=?',
+                        [param.rated_user_id], function(err, result2){
+                            connection.release();
+                            return Response.success(res, result);
+                        });
+                });
+            });
+        },
+        /**
+         * Set user did first login.
+         * @METHOD POST
+         *
+         * @param req
+         * @param res {success: 1, result: {} }
+         * @url_param - userId
+         */
+        firstlogin: function() {
+            var userId = req.params.userId;
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.  Sorry for inconvenient.');
+                }
+                connection.query( 'UPDATE user SET user_welcome=1 WHERE id=?', [userId], function(err, result) {
+                    if (err) {
+                        connection.release();
+                        return Response.error(res, err, 'Can not not update the database. Sorry for inconvenient.');
+                    }
+                    return Response.success(res, result);
+                });
+            });
+        },
+        /**
+         * Set user accept terms.
+         * @METHOD POST
+         *
+         * @param req
+         * @param res {success: 1, result: {} }
+         * @url_param - userId
+         */
+        acceptterm: function() {
+            var userId = req.params.userId;
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.  Sorry for inconvenient.');
+                }
+                connection.query( 'UPDATE user SET terms=1 WHERE id=?', [userId], function(err, result) {
+                    if (err) {
+                        connection.release();
+                        return Response.error(res, err, 'Can not not update the database. Sorry for inconvenient.');
+                    }
+                    return Response.success(res, result);
                 });
             });
         }
