@@ -163,7 +163,7 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'SELECT id as user_id, * FROM user WHERE id = ?', [id], function(err, result) {
+                connection.query( 'SELECT id, id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role, major, minor, grad_date, feedback FROM user WHERE id = ?', [id], function(err, result) {
                     connection.release();
                     if (err) {
                         return Response.error(res, err, 'Did not create new user.');
@@ -259,7 +259,7 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection. Sorry for inconvenient.');
                 }
-                connection.query( 'SELECT * FROM user WHERE id = ?', [userId], function(err, result) {
+                connection.query( 'SELECT id, id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role, major, minor, grad_date, feedback FROM user WHERE id = ?', [userId], function(err, result) {
                     connection.release();
                     if (err) {
                         return Response.error(res, err, 'Can not find this user. Sorry for inconvenient.');
@@ -287,7 +287,7 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.  Sorry for inconvenient.');
                 }
-                connection.query( 'INSERT INTO user_feedback(user_id, marker_id, mark, comment, transaction_id) ' +
+                connection.query( 'INSERT INTO user_feedback(user_id, marker_id, rate, comment, transaction_id) ' +
                 'values (?, ?, ?, ?, ?)', [param.rated_user_id, userId, param.rate, param.comment, param.tranaction_id], function(err, result) {
                     if (err) {
                         connection.release();
@@ -303,7 +303,7 @@ module.exports = function(dbPool, passport) {
         },
         /**
          * Set user did first login.
-         * @METHOD POST
+         * @METHOD PUT
          *
          * @param req
          * @param res {success: 1, result: {} }
@@ -326,7 +326,7 @@ module.exports = function(dbPool, passport) {
         },
         /**
          * Set user accept terms.
-         * @METHOD POST
+         * @METHOD PUT
          *
          * @param req
          * @param res {success: 1, result: {} }
@@ -342,6 +342,29 @@ module.exports = function(dbPool, passport) {
                     if (err) {
                         connection.release();
                         return Response.error(res, err, 'Can not not update the database. Sorry for inconvenient.');
+                    }
+                    return Response.success(res, result);
+                });
+            });
+        },
+        /**
+         * retrive all feedback history.
+         * @METHOD GET
+         *
+         * @param req
+         * @param res {success: 1, result: {} }
+         * @url_param - userId
+         */
+        feedback: function() {
+            var userId = req.params.userId;
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.  Sorry for inconvenient.');
+                }
+                connection.query( 'SELECT uf.*, u.first_name, u.last_name FROM user_feedback uf left join user u ON uf.marker_id = u.id where user_id=? ORDER BY uf.ut DESC', [userId], function(err, result) {
+                    if (err) {
+                        connection.release();
+                        return Response.error(res, err, 'Can not get feedback data. Sorry for inconvenient.');
                     }
                     return Response.success(res, result);
                 });

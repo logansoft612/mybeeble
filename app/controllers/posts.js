@@ -7,7 +7,7 @@ var Response    = require('../util/response');
 var Util        = require('../util/util');
 var config      = require('../../config/config');
 
-module.exports = function(dbPool, notifier) {
+module.exports = function(dbPool, notifier, activity) {
     return {
         /**
          *
@@ -82,15 +82,16 @@ module.exports = function(dbPool, notifier) {
                 } else {
                     contactInfo = param.contact;
                 }
-                connection.query( 'INSERT INTO textbook(category_id, title, author, isbn13, publisher, type, price, description, zip, owner_id, old, contact, coverpath, condition, email, phone, by_phoone, by_text, by_email) ' +
-                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, userId, param.isold, contactInfo, coverPath, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email],
+                connection.query( 'INSERT INTO textbook(category_id, title, author, isbn13, publisher, type, price, description, zip, owner_id, old, contact, coverpath, condition, email, phone, by_phoone, by_text, by_email, comment) ' +
+                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, userId, param.isold, contactInfo, coverPath, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, param.comment],
                     function(err, result) {
                         connection.release();
                         if (err) {
                             return Response.error(res, err, 'Did not post the book. Sorry for inconvenience.');
                         }
                         notifier.bookPosted(result.insertId, param.title, param.isbn, param.price);
+                        activity.newPost(userId, result.insertId, param.title);
                         return Response.success(res, result);
                     });
             });
@@ -199,14 +200,14 @@ module.exports = function(dbPool, notifier) {
                 }
                 if(coverPath === "") {
                     sql = connection.format('UPDATE textbook SET category_id=?, title=?, author=?, isbn13=?, publisher=?, ' +
-                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, condition=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
+                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, condition=?, comment=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
                         ' WHERE owner_id = ? AND id = ? '
                         ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
                 } else {
                     sql = connection.format('UPDATE textbook SET category_id=?, title=?, author=?, isbn13=?, publisher=?, ' +
-                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, coverpath=?, condition=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
+                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, coverpath=?, condition=?, comment=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
                         ' WHERE owner_id = ? AND id = ? '
-                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, coverPath, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
+                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, coverPath, param.condition, param.comment, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
                 }
 
                 connection.query( sql,function(err, result) {

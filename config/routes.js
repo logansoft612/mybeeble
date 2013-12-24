@@ -4,6 +4,7 @@ var async = require('async');
 module.exports = function (app, passport, auth, dbPool) {
     "use strict";
 
+    var activities = require('../app/controllers/activities')(dbPool);
     var notification = require('../app/controllers/notifications')(dbPool);
     //User Routes
     var users = require('../app/controllers/users')(dbPool, passport);
@@ -16,6 +17,11 @@ module.exports = function (app, passport, auth, dbPool) {
     app.get('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.get);
     app.put('/api/users/:userId/permission', auth.requiresLogin, auth.user.isSuperman, users.changePermission);
 
+    app.post('/api/users/:userId/rate', auth.requiresLogin, auth.user.hasAuthorization, users.rate);
+    app.put('/api/users/:userId/firstlogin', auth.requiresLogin, auth.user.hasAuthorization, users.firstlogin);
+    app.put('/api/users/:userId/acceptterm', auth.requiresLogin, auth.user.hasAuthorization, users.acceptterm);
+    app.get('/api/users/:userId/feedback', auth.requiresLogin, auth.user.hasAuthorization, users.feedback);
+
     app.post('/api/users/pwdreset', users.pwdreset);
     app.put('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.update);
     app.del('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.closeAccount);
@@ -23,6 +29,15 @@ module.exports = function (app, passport, auth, dbPool) {
 
     //Finish with setting up the userId param
     app.param('userId', users.user);
+
+    //---------------------------------------------------
+
+    app.get('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, activities.all);
+    app.del('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, users.deleteAll);
+    app.del('/api/users/:userId/activities/:activityId', auth.requiresLogin, auth.user.hasAuthorization, users.delete);
+    app.post('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, users.newOrder);
+
+
 
     var wishes = require('../app/controllers/wishes')(dbPool, notification);
     //app.get('/api/wishes', wishes.adminAll);
@@ -49,7 +64,7 @@ module.exports = function (app, passport, auth, dbPool) {
 
     //app.param('bookId', books.book);
 
-    var posts = require('../app/controllers/posts')(dbPool, notification);
+    var posts = require('../app/controllers/posts')(dbPool, notification, activities);
     app.get('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.search);
     app.post('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.create);
     app.get( '/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.get);
