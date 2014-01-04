@@ -64,4 +64,6 @@ exports.moveUploadedFile = function(srcFile, dstPath, dstPrefix) {
 
     return newFilename;
 }
-exports.getExtension()
+exports.getExtension = function(filename) {
+    return 'jpg';
+}

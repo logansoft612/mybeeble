@@ -33,9 +33,10 @@ module.exports = function (app, passport, auth, dbPool) {
     //---------------------------------------------------
 
     app.get('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, activities.all);
-    app.del('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, users.deleteAll);
-    app.del('/api/users/:userId/activities/:activityId', auth.requiresLogin, auth.user.hasAuthorization, users.delete);
-    app.post('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, users.newOrder);
+    app.del('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, activities.deleteAll);
+    app.del('/api/users/:userId/activities/:activityId', auth.requiresLogin, auth.user.hasAuthorization, activities.delete);
+    app.post('/api/users/:userId/activities', auth.requiresLogin, auth.user.hasAuthorization, activities.newOrder);
+    app.post('/api/users/:userId/activities/post', auth.requiresLogin, auth.user.hasAuthorization, activities.newPost);
 
 
 
