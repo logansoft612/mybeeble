@@ -105,7 +105,7 @@ module.exports = function(dbPool) {
          * @param res
          * @url_param - bookId
          */
-        get : function(req, res) {
+        read : function(req, res) {
             var param = req.query;
             var bookId = req.params.bookId;
             var keyword = '';
@@ -145,9 +145,9 @@ module.exports = function(dbPool) {
                 } else {
                     contactInfo = param.contact;
                 }
-                connection.query( 'INSERT INTO post(category_id, title, author, isbn13, publisher, type, price, description, zip, user_id, status) ' +
-                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, param.zip, userId, config.app.textbook_status[1] /* new */ ],
+                connection.query( 'INSERT INTO post(category_id, title, author, isbn13, publisher, type, price, description, user_id, status) ' +
+                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, userId, config.app.textbook_status[1] /* new */ ],
                     function(err, result) {
                         connection.release();
                         if (err) {
@@ -159,7 +159,7 @@ module.exports = function(dbPool) {
                                 fs.unlink(req.files.coverfile.path);
                             } else {
                                 var tmp_path = req.files.coverfile.path;
-                                var target_path = config.cover_path + result.insertId + '.jpg';
+                                var target_path = config.path.book_img + result.insertId + '.jpg';
                                 fs.rename(tmp_path, target_path, function(err) {
                                     if(err) {
                                         console.log("---file move error. file ID : " + result.insertId + " error : ", err);
@@ -181,7 +181,8 @@ module.exports = function(dbPool) {
         update : function(req, res) {
             var param = req.body;
             var bookId = req.params.bookId;
-            var mode = req.query.mode;
+
+            var mode = param.mode;
 
             if(config.app.textbook_status.indexOf(mode) < 1) {
                 return Response.error(res, null, 'You should give right permission mode. [new, allow, deny]');
@@ -209,8 +210,6 @@ module.exports = function(dbPool) {
          *
          */
         delete : function(req, res) {
-            var param = req.body;
-            var userId = req.user.id;
             var bookId = req.params.bookId;
 
             dbPool.getConnection(function(err, connection){

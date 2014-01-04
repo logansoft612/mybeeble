@@ -58,22 +58,34 @@ module.exports = function (app, passport, auth, dbPool) {
 
     //app.param('bookmarkId', bookmarks.bookmark);
 
+    var categories = require('../app/controllers/categories')(dbPool);
+    app.get('/api/users/:userId/categories', auth.requiresLogin, auth.user.isSuperman, categories.all);
+    app.post('/api/users/:userId/categories', auth.requiresLogin, auth.user.isSuperman, categories.create);
+    app.get('/api/users/:userId/categories/:categoryId', auth.requiresLogin, auth.user.isSuperman, categories.read);
+    app.put('/api/users/:userId/categories/:categoryId', auth.requiresLogin, auth.user.isSuperman, categories.update);
+    app.del('/api/users/:userId/categories/:categoryId', auth.requiresLogin, auth.user.isSuperman, categories.delete);
+
+    //app.param('categoryId', categories.category);
+
     var books = require('../app/controllers/books')(dbPool);
-    app.get('/api/books', books.all);
-    app.get('/api/books/:bookId', books.get);
+    app.get('/api/books', books.search);
+    app.get('/api/books/list', books.all);
+    app.get('/api/books/:bookId', books.read);
+    app.post('/api/books', books.create);
+    app.put('/api/books/:bookId', books.update);
+    app.del('/api/books/:bookId', books.delete);
 
     //app.param('bookId', books.book);
 
     var posts = require('../app/controllers/posts')(dbPool, notification, activities);
     app.get('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.search);
     app.post('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.create);
-    app.get( '/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.get);
+    app.get( '/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.read);
     app.post('/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.update);    ///--- This should be changed to PUT method
     //app.post('/api/users/:userId/updateposts', posts.update);    ///--- This should be changed to PUT method
     app.del('/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.delete);
 
     //app.param('postId', posts.post);
-
 
     //Condition Routes
     var messages = require('../app/controllers/messages')(dbPool, notification);

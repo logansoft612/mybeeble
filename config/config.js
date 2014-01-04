@@ -15,8 +15,11 @@ module.exports = {
         wait_timeout : 1000
     },
     root : rootPath,
-    cover_path: '/mnt/mybeeble/books/imgs/',
-    avatar_path: '/mnt/mybeeble/avatar/',
+    path : {
+        book_img: '/mnt/mybeeble/books/imgs/',
+        avatar: '/mnt/mybeeble/avatar/',
+        post_img: '/mnt/mybeeble/posts/'
+    },
     port : 3000,
     curlPath: {
         zipInRadius : "http://zipcodedistanceapi.redline13.com/rest/cdVnHmC9UXF5ltFIm4Cff7aDO4Fn6Mzi0uGHRiQLgwRB0xkmBWBQ4LuSQ9gXVQfW/radius.json/71959/50/km"
