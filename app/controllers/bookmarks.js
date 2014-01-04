@@ -28,12 +28,12 @@ module.exports = function(dbPool, notifier) {
                     if(result.length > 0) {
                         totalCnt = result[0]['cnt'];
                     }
-                    sql = 'SELECT ub.id id, tb.title title, tb.author author, tb.isbn13, tb.isbn10, tb.publisher, tb.type, tb.price, tb.description, tb.zip, tb.longitude, tb.latitude, c.title category, ow.username owner, ow.email ow_email, ow.first_name ow_first_name, ow.last_name ow_last_name ' +
+                    sql = 'SELECT ub.id id, p.title title, p.author author, p.isbn13, p.isbn10, p.publisher, p.type, p.price, p.description, p.zip, p.longitude, p.latitude, c.title category, ow.username owner, ow.email ow_email, ow.first_name ow_first_name, ow.last_name ow_last_name ' +
                         ' FROM user_bookmark ub ' +
-                        ' LEFT JOIN textbook tb  ON ub.book_id = tb.id ' +
+                        ' LEFT JOIN post p      ON ub.book_id = p.id ' +
                         ' LEFT JOIN user u       ON ub.user_id = u.id ' +
-                        ' LEFT JOIN category c   ON tb.category_id = c.id ' +
-                        ' LEFT JOIN user ow      ON tb.owner_id = ow.id ' +
+                        ' LEFT JOIN category c   ON p.category_id = c.id ' +
+                        ' LEFT JOIN user ow      ON p.user_id = ow.id ' +
                         ' WHERE ub.user_id = "' + userId + '"';
                     if (param.len && param.len > 0) {
                         sql += ' LIMIT ' + param.len;
@@ -67,7 +67,7 @@ module.exports = function(dbPool, notifier) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'SELECT * FROM textbook WHERE id = ?',
+                connection.query( 'SELECT * FROM post WHERE id = ?',
                     [param.book_id], function(err, result) {
                         if (err) {
                             connection.release();
@@ -77,9 +77,9 @@ module.exports = function(dbPool, notifier) {
                             connection.release();
                             return Response.error(res, err, 'Did not find a book to bookmark.');
                         }
-                        ownerId = result[0].owner_id;
+                        ownerId = result[0].user_id;
                         categoryId = result[0].category_id;
-                        connection.query( 'INSERT INTO user_bookmark(user_id, book_id, owner_id, category_id) values (?, ?, ?, ?)',
+                        connection.query( 'INSERT INTO user_bookmark(user_id, book_id, user_id, category_id) values (?, ?, ?, ?)',
                             [userId, param.book_id, ownerId,categoryId], function(err, result2) {
                                 connection.release();
                                 if (err) {
@@ -106,12 +106,12 @@ module.exports = function(dbPool, notifier) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'SELECT ub.id id, tb.title title, tb.author author, tb.isbn13, tb.isbn10, tb.publisher, tb.type, tb.price, tb.description, tb.zip, tb.longitude, tb.latitude, c.title category, ow.username owner, ow.email ow_email, ow.first_name ow_first_name, ow.last_name ow_last_name ' +
+                connection.query( 'SELECT ub.id id, p.title title, p.author author, p.isbn13, p.isbn10, p.publisher, p.type, p.price, p.description, p.zip, p.longitude, p.latitude, c.title category, ow.username owner, ow.email ow_email, ow.first_name ow_first_name, ow.last_name ow_last_name ' +
                     'FROM user_bookmark ub ' +
-                    'LEFT JOIN textbook tb  ON ub.book_id = tb.id ' +
+                    'LEFT JOIN post p       ON ub.book_id = p.id ' +
                     'LEFT JOIN user u       ON ub.user_id = u.id ' +
-                    'LEFT JOIN category c   ON tb.category_id = c.id ' +
-                    'LEFT JOIN user ow      ON tb.owner_id = ow.id ' +
+                    'LEFT JOIN category c   ON p.category_id = c.id ' +
+                    'LEFT JOIN user ow      ON p.user_id = ow.id ' +
                     'WHERE ub.user_id = ? AND ub.id = ?',
                     [userId, wishId], function(err, result) {
                         connection.release();

@@ -215,7 +215,7 @@ module.exports = function(dbPool, passport) {
         changePermission: function(req, res) {
             var param = req.body;
             var userId = req.params.userId;
-            if(["new", "active", "admin"].indexOf(param.role) < 0) {
+            if(config.app.user_status.indexOf(param.role) < 0) {
                 return Response.error(res, null, 'role type error.');
             }
             dbPool.getConnection(function(err, connection){

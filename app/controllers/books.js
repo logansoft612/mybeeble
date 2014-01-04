@@ -1,134 +1,228 @@
 /**
  * Module dependencies.
  */
-var _ = require('underscore');
-var Response = require('../util/response');
-var config = require('../../config/config');
-
+var _           = require('underscore');
+var Response    = require('../util/response');
+var config      = require('../../config/config');
+var fs          = require('fs');
 
 module.exports = function(dbPool) {
     return {
         /**
+         * Search registered textbooks by keyword. ( For user search book )
          *
-         * @param req [ keyword, ~zip, ~distance, ~price_min, ~price_max, ~cover, ~category]
+         * @param req [ keyword]
          * @param res
          *
          * keyword : auth, title, isbn, publisher
          */
+        search : function(req, res) {
+            var param = req.query;
+            var userId = req.params.userId;
+            var keyword = param.keyword;
+
+            if(!keyword || keyword === '') {
+                keyword = '';
+            }
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.');
+                }
+                keyword = '%'+keyword+'%';
+                connection.query( 'SELECT * FROM textbook WHERE status=? AND ' +
+                    ' ( isbn13 LIKE ? OR  author LIKE ? OR  title LIKE ? OR  publisher LIKE ?)'
+                    , [config.app.textbook_status[2] /* allow */, keyword, keyword, keyword , keyword], function(err, result) {
+                        connection.release();
+                        if (err) {
+                            return Response.error(res, err, 'You can not find the textbooks. Sorry for inconvenient');
+                        }
+                        return Response.success(res, result);
+                    });
+            });
+        },
+        /**
+         * Get registered textbooks list. ( Admin users use this service to accept or decline newly suggested textbooks. )
+         *
+         * @param req { ~offset: {number}, ~len: {number},  ~keyword: {string}, mode: : {number}(all, new , allow, deny) }
+         * @param res
+         *
+         */
         all : function(req, res) {
             var param = req.query;
-            var totalCnt = 0;
-            var idx = 0;
+            var userId = req.params.userId;
+
+            var keyword = req.query.keyword;
+            var mode = req.query.mode;
+
             var sql = '';
-            var escapedString = '';
-            var sqlZipCodeInRadius = 'SELECT z.*, o.*, (6371 * 2 * ASIN(SQRT( ' +
-            'POWER(SIN((o.org_lat - abs(z.latitude)) * pi()/180 / 2), ' +
-                '2) + COS(o.org_lat * pi()/180 ) * COS(abs(z.latitude) * ' +
-                'pi()/180) * POWER(SIN((o.org_long - z.longitude) * ' +
-                'pi()/180 / 2), 2) ))) as distance ' +
-            'FROM zcta z ' +
-            'LEFT JOIN (SELECT latitude org_lat, longitude org_long, zip org_zip ' +
-            'FROM zcta where zip = ?) o ON 1=1 ' +
-            'having distance <= ?';
+            var totalCnt = 0;
+
+            if(config.app.textbook_status.indexOf(mode) < 0 || mode == config.app.textbook_status[0]) {
+                mode = '%';  // all
+            }
+            if (!keyword) {
+                keyword = '%';
+            } else {
+                keyword = '%'+keyword+'%';
+            }
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                escapedString = '%' + param.keyword + '%';
-                sql = connection.format('SELECT * FROM textbook ' +
-                    'WHERE del=0 AND ( isbn13 LIKE ? OR author LIKE ? OR title LIKE ? OR publisher LIKE ?)'
-                    ,[escapedString, escapedString, escapedString, escapedString]);
-                if (param.category) {
-                    sql += ' AND category_id=' + param.category;
-                }
-
-                if (param.cover) {
-                    if(Object.prototype.toString.call(param.cover) === '[object Array]' && param.cover.length > 0) {
-                        escapedString = connection.escape(param.cover[0]);
-                        for(idx = 1; idx < param.cover.length; idx++) {
-                            escapedString += ", " + connection.escape(param.cover[idx]);
-                        }
-                        sql += ' AND type IN (' + escapedString +')';
-                    } else {
-                        sql += ' AND type = ' + connection.escape(param.cover);
-                    }
-                }
-                if (param.price_min) {
-                    sql += ' AND price>=' + param.price_min;
-                }
-                if (param.price_max) {
-                    sql += ' AND price<=' + param.price_max;
-                }
-                if (param.zip && param.distance) {
-                    connection.query( sqlZipCodeInRadius, [param.zip, param.distance], function(err, result) {
+                connection.query( 'SELECT COUNT(*) as cnt FROM textbook WHERE status LIKE ? AND ' +
+                    ' ( isbn13 LIKE ? OR  author LIKE ? OR  title LIKE ? OR  publisher LIKE ?)'
+                    , [mode, keyword, keyword, keyword , keyword], function(err, result) {
                         if (err) {
-                            connection.release();
-                            return Response.error(res, err, 'You can not find books for now. Sorry for inconvenient');
+                            return Response.error(res, err, 'You can not get textbooks. Sorry for inconvenient');
                         }
-                        if (result.length == 0) {
-                            return Response.success(res, []);
+                        if(result.length > 0) {
+                            totalCnt = result[0]['cnt'];
                         }
-                        escapedString = connection.escape(result[0].zip);
-                        for(idx = 1; idx < result.length; idx++) {
-                            escapedString += ", " + connection.escape(result[idx].zip);
+                        sql = connection.format('SELECT * FROM textbook WHERE status LIKE ? AND ' +
+                            ' ( isbn13 LIKE ? OR  author LIKE ? OR  title LIKE ? OR  publisher LIKE ?)'
+                            , [mode, keyword, keyword, keyword , keyword]);
+                        if (param.len && param.len > 0) {
+                            sql += ' LIMIT ' + param.len;
+                            if (param.offset && param.offset > 0) {
+                                sql += ' OFFSET ' + param.offset;
+                            }
                         }
-                        sql += ' AND zip IN (' + escapedString +')';
-                        console.log(sql);
                         connection.query( sql, function(err, result) {
                             connection.release();
                             if (err) {
-                                return Response.error(res, err, 'You can not find books for now. Sorry for inconvenient');
+                                return Response.error(res, err, 'You can not get textbooks. Sorry for inconvenient');
                             }
-                            return Response.success(res, result);
+                            return Response.success(res, {total: totalCnt, result: result});
                         });
                     });
-                } else {
-                    console.log(sql);
-                    connection.query( sql, function(err, result) {
-                        connection.release();
-                        if (err) {
-                            return Response.error(res, err, 'You can not find books for now. Sorry for inconvenient');
-                        }
-                        return Response.success(res, result);
-                    });
-                }
-
             });
         },
         /**
-         * return book detail
+         * Get textbook detail
+         *
+         * @param req
+         * @param res
+         * @url_param - bookId
+         */
+        get : function(req, res) {
+            var param = req.query;
+            var bookId = req.params.bookId;
+            var keyword = '';
+
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.');
+                }
+                connection.query( 'SELECT * FROM textbook WHERE id = ? '
+                    , [ bookId ], function(err, result) {
+                        connection.release();
+                        if (err) {
+                            return Response.error(res, err, 'You can not get this textbook. Sorry for inconvenient');
+                        }
+                        return Response.success(res, result);
+                    });
+            });
+        },
+        /**
+         * Suggest new textbook
+         *
+         * @param req [ keyword]
+         * @param res
+         */
+        create : function(req, res) {
+            var param = req.body;
+            var userId = req.user.id;
+            var contactInfo = '';
+            var coverPath = '';
+
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Error(res, err, 'Can not get db connection.');
+                }
+                if(Object.prototype.toString.call(param.contact) === '[object Array]') {
+                    contactInfo = imploid(",", param.contact);
+                } else {
+                    contactInfo = param.contact;
+                }
+                connection.query( 'INSERT INTO post(category_id, title, author, isbn13, publisher, type, price, description, zip, user_id, status) ' +
+                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, param.zip, userId, config.app.textbook_status[1] /* new */ ],
+                    function(err, result) {
+                        connection.release();
+                        if (err) {
+                            return Response.error(res, err, 'Did not create the new textbook. Sorry for inconvenience.');
+                        }
+
+                        if(req.files) {
+                            if (req.files.coverfile.originalFilename === "") {
+                                fs.unlink(req.files.coverfile.path);
+                            } else {
+                                var tmp_path = req.files.coverfile.path;
+                                var target_path = config.cover_path + result.insertId + '.jpg';
+                                fs.rename(tmp_path, target_path, function(err) {
+                                    if(err) {
+                                        console.log("---file move error. file ID : " + result.insertId + " error : ", err);
+                                    }
+                                });
+                            }
+                        }
+                        return Response.success(res, result);
+                    });
+            });
+        },
+        /**
+         * Update textbook status ( Administrator update the newly registered textbook )
+         *
+         * @param req { mode: : {number}(all, new , allow, deny) }
+         * @param res
+         * @url_param - bookId
+         */
+        update : function(req, res) {
+            var param = req.body;
+            var bookId = req.params.bookId;
+            var mode = req.query.mode;
+
+            if(config.app.textbook_status.indexOf(mode) < 1) {
+                return Response.error(res, null, 'You should give right permission mode. [new, allow, deny]');
+            }
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.');
+                }
+                connection.query( 'UPDATE textbook SET status=? WHERE id = ? '
+                    , [ mode, bookId ], function(err, result) {
+                        connection.release();
+                        if (err) {
+                            return Response.error(res, err, 'You can not modify this textbook. Sorry for inconvenient');
+                        }
+                        return Response.success(res, result);
+                    });
+            });
+        },
+        /**
+         * delete textbook
          *
          * @param req
          * @param res
          * @url_param - bookId
          *
          */
-        get : function(req, res) {
+        delete : function(req, res) {
             var param = req.body;
             var userId = req.user.id;
             var bookId = req.params.bookId;
-            var sql = '';
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                sql = 'SELECT tb.*, u.username ow_username, u.email ow_email, u.first_name ow_firstname, u.last_name ow_lastname, u.phone ow_phone, u.address ow_address, u.zip ow_zip, c.title category_title, c.slug category_slug, z.latitude, z.longitude, z.city, z.state ' +
-                    'FROM textbook tb ' +
-                    'LEFT JOIN user u ON u.id = tb.owner_id ' +
-                    'LEFT JOIN category c ON c.id = tb.category_id ' +
-                    'LEFT JOIN zcta z ON z.zip = tb.zip ' +
-                    'WHERE tb.id = ?'
-                connection.query( sql, [bookId], function(err, result) {
+                connection.query( 'DELETE FROM textbook WHERE id = ?', [bookId], function(err, result) {
                     connection.release();
                     if (err) {
-                        return Response.error(res, err, 'You can not find books for now. Sorry for inconvenient');
+                        return Response.error(res, err, 'You can not delete this textbook for now. Sorry for inconvenient');
                     }
-                    if (result.length == 0) {
-                        return Response.error(res, err, 'Can not find book for this ID.');
-                    }
-                    return Response.success(res, result[0]);
+                    return Response.success(res, result);
                 });
             });
         }

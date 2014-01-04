@@ -272,7 +272,7 @@ module.exports = function(dbPool) {
                     console.log(" - notification report error. ( book removed ) - ", err);
                     return;
                 }
-                connection.query('SELECT ub.user_id, tb.title FROM user_bookmark ub LEFT JOIN textbook tb ON tb.id = ub.book_id WHERE ub.book_id = ?',
+                connection.query('SELECT ub.user_id, p.title FROM user_bookmark ub LEFT JOIN post p ON p.id = ub.book_id WHERE ub.book_id = ?',
                     [bookId], function(err, results){
                         if (err) {
                             connection.release();
@@ -368,7 +368,7 @@ module.exports = function(dbPool) {
                     console.log(" - notification report error. ( bookmark added ) - ", err);
                     return;
                 }
-                connection.query('SELECT title, owner_id FROM textbook WHERE id = ?'
+                connection.query('SELECT title, user_id FROM post WHERE id = ?'
                     , [bookId], function(err, result) {
 
                     if (err) {
@@ -383,13 +383,13 @@ module.exports = function(dbPool) {
                     }
                     description = '<b>' + adderName + '</b> bookmarked your post <b>' + result[0].title  + '</b>';
                     connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES (?, ?, ?, ?)',
-                        [result[0].owner_id, BOOKMARKED_YOUR_POST, description, linkTo], function (err, results) {
+                        [result[0].user_id, BOOKMARKED_YOUR_POST, description, linkTo], function (err, results) {
                             if (err) {
                                 connection.release();
                                 console.log(" - notification report error. ( bookmark added ) - ", err);
                                 return;
                             }
-                            IncreaseUnreadNotification(result[0].owner_id, connection, function(success){
+                            IncreaseUnreadNotification(result[0].user_id, connection, function(success){
                                 connection.release();
                                 if(!success) console.log("Did not increase notification count.");
                             });
@@ -413,7 +413,7 @@ module.exports = function(dbPool) {
                     console.log(" - notification report error. ( wishlist added ) - ", err);
                     return;
                 }
-                sql = 'SELECT * FROM textbook WHERE (title = '+connection.escape(bookTitle)+
+                sql = 'SELECT * FROM post WHERE (title = '+connection.escape(bookTitle)+
                     ' OR isbn13 = '+connection.escape(bookIsbn)+') AND ( price <= '+priceMax+' AND price >= '+priceMin+' )';
                 console.log(sql);
                 connection.query(sql, function(err, results) {
@@ -429,13 +429,13 @@ module.exports = function(dbPool) {
                         }
                         for( idx = 0; idx < results.length; idx++ ) {
                             notifyValues.push([
-                                results[idx].owner_id,
+                                results[idx].user_id,
                                 ADDED_TO_WISHLIST_YOUR_POST,
                                 //'#{{user_id|user_name}} added your post #{{post_id|post_title}} to user wishlist.';
                                 '<b>' + adderName + '</b> added your post <b>' + results[idx].title  + '</b> to user wishlist.',
                                 "/api/books/" + results[idx].id
                             ]);
-                            userList.push(results[idx].owner_id);
+                            userList.push(results[idx].user_id);
                         }
                         connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES ?',
                             [notifyValues], function (err, results) {
