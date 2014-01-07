@@ -16,13 +16,30 @@ block content
         input.form-control#category(name="category", placeholder="category", type="text")
         input.form-control#isbn(name="isbn", placeholder="isbn", type="text")
         input.form-control#publisher(name="publisher", placeholder="publisher", type="text")
-        input.form-control#cover(name="cover", placeholder="cover", type="text")
+        input.form-control#type(name="type", placeholder="type", type="text")
         input.form-control#price(name="price", placeholder="price", type="text")
         input.form-control#description(name="description", placeholder="description", type="text")
         input.form-control#zip(name="zip", placeholder="zip", type="text")
         input.form-control#isold(name="isold", placeholder="isold", type="text")
         input.form-control#contact(name="contact", placeholder="contact", type="text")
-
+        input.form-control#condition(name="condition", placeholder="condition", type="text")
+        input.form-control#email(name="email", placeholder="email", type="text")
+        input.form-control#phone(name="phone", placeholder="phone", type="text")
+        label
+            input.form-control#by_phone(name="by_phone", placeholder="by_phone", type="checkbox", value="1")
+            | by Phone
+        label
+            input.form-control#by_text(name="by_text", placeholder="by_text", type="checkbox", value="1")
+            | by Text
+        label
+            input.form-control#by_email(name="by_email", placeholder="by_email", type="checkbox", value="1")
+            | by Email
+        input.form-control#comment(name="comment", placeholder="comment", type="text")
+        br
+        label
+            input.form-control#use_textbook_cover(name="use_textbook_cover", placeholder="use_textbook_cover", type="checkbox", value="1")
+            | Use Textbook Cover
+        input.form-control#textbook_id(name="textbook_id", placeholder="textbook ID", type="text")
         .form-group
             .col-lg-offset-2.col-lg-10
                 button.btn.btn-primary(type="submit") Post A New Book

@@ -5,7 +5,7 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.search.form-horizontal(action="/api/posts", method="get", role="form")
+    form.search.form-horizontal(action="/api/books", method="get", role="form")
         h1 Search Your book
         input.form-control#keyword( type="text", name="keyword", placeholder="title, isbn, author keyword")
         input.form-control#zip(name="zip", placeholder="Zip code", type="text")
@@ -17,12 +17,33 @@ block content
 
         button.btn.btn-primary(type="submit") Search
     hr
-    form.get.form-horizontal(action="/api/posts", method="get", role="form")
+    form.get.form-horizontal(action="/api/books", method="get", role="form")
         h1 Search Your book
         input.form-control#book_id( type="text", name="book_id", placeholder="Book Id")
 
         button.btn.btn-primary(type="submit") Get
+    form.create(action="/api/users/"+user.id+"/books",enctype="multipart/form-data", method="post", role="form")
+        h1 Post New Book
+        input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
+        br
+        input#coverfile( type="file", name="coverfile")
+
+        input.form-control#title(name="title", placeholder="title", type="text")
+        input.form-control#author(name="author", placeholder="author", type="text")
+        input.form-control#category(name="category", placeholder="category", type="text")
+        input.form-control#isbn(name="isbn", placeholder="isbn", type="text")
+        input.form-control#publisher(name="publisher", placeholder="publisher", type="text")
+        input.form-control#type(name="type", placeholder="type", type="text")
+        input.form-control#price(name="price", placeholder="price", type="text")
+        input.form-control#description(name="description", placeholder="description", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Regist a new textbook
     script.
+        $("form.create").on("submit", function(){
+            $(this).attr("action", "/api/books");
+            return true;
+        });
         $("form.search").on("submit", function(){
             var frm = {
                 keyword: $("#keyword").val()

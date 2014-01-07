@@ -242,7 +242,7 @@ module.exports = function(dbPool) {
                             ]);
                             userList.push(results[idx].user_id);
                         }
-                        connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES ?', [notifyValues], function (err, results) {
+                        connection.query( 'INSERT INTO notification(notification.user_id, notification.type, notification.description, notification.link) VALUES ?', [notifyValues], function (err, results) {
                             if (err) {
                                 connection.release();
                                 console.log(" - notification report error. (book posted) - ", err);
@@ -296,7 +296,7 @@ module.exports = function(dbPool) {
                             userList.push(results[idx].user_id);
                         }
 
-                        connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES ?', [notifyValues], function (err, results) {
+                        connection.query( 'INSERT INTO notification(notification.user_id, notification.type, notification.description, notification.link) VALUES ?', [notifyValues], function (err, results) {
                             if (err) {
                                 connection.release();
                                 console.log(" - notification report error. ( book removed ) - ", err);
@@ -340,7 +340,7 @@ module.exports = function(dbPool) {
                         return;
                     }
                     description = '<b>' + result[0].name + '</b> pinged: <b>"' + messageTruncate + '"</b> regarding <b>' + result[0].title + '</b>.';
-                    connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES (?, ?, ?, ?)',
+                    connection.query( 'INSERT INTO notification(notification.user_id, notification.type, notification.description, notification.link) VALUES (?, ?, ?, ?)',
                         [receiverId, MESSAGE_RECEIVED, description, linkTo], function (err, results) {
                         if (err) {
                             connection.release();
@@ -382,7 +382,7 @@ module.exports = function(dbPool) {
                         return;
                     }
                     description = '<b>' + adderName + '</b> bookmarked your post <b>' + result[0].title  + '</b>';
-                    connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES (?, ?, ?, ?)',
+                    connection.query( 'INSERT INTO notification(notification.user_id, notification.type, notification.description, notification.link) VALUES (?, ?, ?, ?)',
                         [result[0].user_id, BOOKMARKED_YOUR_POST, description, linkTo], function (err, results) {
                             if (err) {
                                 connection.release();
@@ -437,7 +437,7 @@ module.exports = function(dbPool) {
                             ]);
                             userList.push(results[idx].user_id);
                         }
-                        connection.query( 'INSERT INTO notification(user_id, type, description, link) VALUES ?',
+                        connection.query( 'INSERT INTO notification(notification.user_id, notification.type, notification.description, notification.link) VALUES ?',
                             [notifyValues], function (err, results) {
                                 if (err) {
                                     connection.release();

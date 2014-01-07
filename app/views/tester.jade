@@ -28,7 +28,9 @@ block content
             input.form-control#phone(type="text", name="phone", placeholder="phone")
             input.form-control#address(type="text", name="address", placeholder="address")
             input.form-control#zip(type="text", name="zip", placeholder="zip")
-            input.form-control#zip(type="checkbox", name="terms")
+            label
+                input.form-control#terms(type="checkbox", name="terms")
+                | terms
         .form-group
             .col-lg-offset-2.col-lg-10
                 button.btn.btn-primary(type="submit") update

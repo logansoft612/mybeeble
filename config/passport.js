@@ -5,7 +5,7 @@ var LocalStrategy = require('passport-local').Strategy,
 module.exports = function(passport, dbPool) {
     //Serialize sessions
     passport.serializeUser(function(user, done) {
-        done(null, user.id);
+        done(null, user.user_id);
     });
 
     passport.deserializeUser(function(id, done) {
@@ -13,7 +13,7 @@ module.exports = function(passport, dbPool) {
             if (err) {
                 return done(err, null);
             }
-            connection.query("SELECT id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role FROM user WHERE id = ?", [id], function(err, user) {
+            connection.query("SELECT id, id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role FROM user WHERE id = ?", [id], function(err, user) {
                 connection.release();
                 done(err, user[0]);
             });
@@ -33,7 +33,7 @@ module.exports = function(passport, dbPool) {
                 if (err) {
                     return done(err);
                 }
-                connection.query("SELECT id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role FROM user WHERE username = ? AND password = MD5(?)", [username, password], function(err, user) {
+                connection.query("SELECT id, id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role FROM user WHERE username = ? AND password = MD5(?)", [username, password], function(err, user) {
                     connection.release();
                     if (err) {
                         return done(err);

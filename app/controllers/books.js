@@ -145,7 +145,7 @@ module.exports = function(dbPool) {
                 } else {
                     contactInfo = param.contact;
                 }
-                connection.query( 'INSERT INTO post(category_id, title, author, isbn13, publisher, type, price, description, user_id, status) ' +
+                connection.query( 'INSERT INTO textbook(textbook.category_id, textbook.title, textbook.author, textbook.isbn13, textbook.publisher, textbook.type, textbook.price, textbook.description, textbook.user_id, textbook.status) ' +
                     'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, userId, config.app.textbook_status[1] /* new */ ],
                     function(err, result) {

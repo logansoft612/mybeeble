@@ -95,7 +95,7 @@ module.exports = function(dbPool) {
                     console.log(" - activity create error. ( new post ) - ", err);
                     return;
                 }
-                sql = 'INSERT INTO user_activity(user_id, activity, link, title) SET (?, ?, ?, ?)';
+                sql = 'INSERT INTO user_activity(user_id, activity, link, title) VALUES (?, ?, ?, ?)';
                 connection.query( sql, [userId, POSTED_A_NEW_BOOK, bookId, title], function(err, results){
                     connection.release();
                     if (err) {
@@ -128,7 +128,7 @@ module.exports = function(dbPool) {
                     console.log(" - activity create error. ( new purchase ) - ", err);
                     return;
                 }
-                sql = 'INSERT INTO user_activity(user_id, activity, link, title, info) SET (?, ?, ?, ?, ?)';
+                sql = 'INSERT INTO user_activity(user_id, activity, link, title, info) VALUES (?, ?, ?, ?, ?)';
                 connection.query( sql, [userId, BOUGHT_A_NEW_BOOK, param.bookId, param.title, param.transactionId], function(err, results){
                     connection.release();
                     if (err) {

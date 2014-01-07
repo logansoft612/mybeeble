@@ -137,7 +137,7 @@ module.exports = function(dbPool, notifier, activity) {
          *
          * @param req [ title, isbn, author, category(ID), publisher, zip, price, address, description, isold
          *              , contact ( string array or string) [email, text, call], type, email, phone, by_phone, by_email, by_text, comment
-         *              , coverfile, is_textbook_cover, textbook_id ]
+         *              , coverfile, use_textbook_cover, textbook_id ]
          * @param res
          */
         create : function(req, res) {
@@ -146,7 +146,12 @@ module.exports = function(dbPool, notifier, activity) {
             var contactInfo = '';
             var coverPath = '';
 
-            if( param.is_textbook_cover ) {
+            var byPhone = param.by_phone || 0;
+            var byText = param.by_text || 0;
+            var byEmail = param.by_email || 0;
+
+
+            if( param.use_textbook_cover ) {
                 coverPath = "/books/imgs/" + config.path.book_img + param.textbook_id + '.jpg';
                 if(req.files) {
                     fs.unlink(req.files.coverfile.path);
@@ -185,10 +190,11 @@ module.exports = function(dbPool, notifier, activity) {
                 } else {
                     contactInfo = param.contact;
                 }
-                connection.query( 'INSERT INTO post(category_id, title, author, isbn13, publisher, type, price, description, zip, user_id, old, contact, coverpath, condition, email, phone, by_phoone, by_text, by_email, comment) ' +
-                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, param.zip, userId, param.isold, contactInfo, coverPath, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, param.comment],
-                    function(err, result) {
+                var sql = connection.format('INSERT INTO post(post.category_id, post.title, post.author, post.isbn13, post.publisher, post.type, post.price, post.description, post.user_id, post.zip, post.old, post.contact, post.coverpath, post.condition, post.email, post.phone, post.by_phone, post.by_text, post.by_email, post.comment) ' +
+                    ' values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, userId, param.zip, param.isold, contactInfo, coverPath, param.condition, param.email, param.phone, byPhone, byText, byEmail, param.comment]);
+                console.log(sql);
+                connection.query( sql, function(err, result) {
                         connection.release();
                         if (err) {
                             return Response.error(res, err, 'Did not create the new post. Sorry for inconvenience.');
@@ -230,7 +236,7 @@ module.exports = function(dbPool, notifier, activity) {
          *
          * @param req [ title, isbn, author, category(ID), publisher, zip, price, address, description, isold
          *              , contact ( string array or string) [email, text, call], type, email, phone, by_phone, by_email, by_text, comment
-         *              , coverfile, is_textbook_cover, textbook_id ]
+         *              , coverfile, use_textbook_cover, textbook_id ]
          * @param res
          * @url_param - postId
          */
@@ -242,7 +248,7 @@ module.exports = function(dbPool, notifier, activity) {
             var coverPath = '';
             var sql = '';
 
-            if( param.is_textbook_cover ) {
+            if( param.use_textbook_cover ) {
                 coverPath = "/books/imgs/" + config.path.book_img + param.textbook_id + '.jpg';
                 if(req.files) {
                     fs.unlink(req.files.coverfile.path);
@@ -282,14 +288,14 @@ module.exports = function(dbPool, notifier, activity) {
                     contactInfo = param.contact;
                 }
                 if(coverPath === "") {
-                    sql = connection.format('UPDATE post SET category_id=?, title=?, author=?, isbn13=?, publisher=?, ' +
-                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, condition=?, comment=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
-                        ' WHERE user_id = ? AND id = ? '
+                    sql = connection.format('UPDATE post SET post.category_id=?, post.title=?, post.author=?, post.isbn13=?, post.publisher=?, ' +
+                        ' post.type=?, post.price=?, post.description=?, post.zip=?, post.old=?, post.contact=?, post.condition=?, post.comment=?, post.email=?, post.phone=?, post.by_phone=?, post.by_text=?, post.by_email=? ' +
+                        ' WHERE post.user_id = ? AND post.id = ? '
                         ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
                 } else {
-                    sql = connection.format('UPDATE post SET category_id=?, title=?, author=?, isbn13=?, publisher=?, ' +
-                        ' type=?, price=?, description=?, zip=?, old=?, contact=?, coverpath=?, condition=?, comment=?, email=?, phone=?, by_phone=?, by_text=?, by_email=? ' +
-                        ' WHERE user_id = ? AND id = ? '
+                    sql = connection.format('UPDATE post SET post.category_id=?, post.title=?, post.author=?, post.isbn13=?, post.publisher=?, ' +
+                        ' post.type=?, post.price=?, post.description=?, post.zip=?, post.old=?, post.contact=?, post.coverpath=?, post.condition=?, post.comment=?, post.email=?, post.phone=?, post.by_phone=?, post.by_text=?, post.by_email=? ' +
+                        ' WHERE post.user_id = ? AND post.id = ? '
                         ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, coverPath, param.condition, param.comment, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
                 }
 

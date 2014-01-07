@@ -1,0 +1,46 @@
+extends layout
+
+block content
+    | you'v logged in
+    hr
+    = ' ' + JSON.stringify(user)
+    hr
+    form.search.form-horizontal(action="/api/posts", method="get", role="form")
+        h1 Search Your book
+        input.form-control#keyword( type="text", name="keyword", placeholder="title, isbn, author keyword")
+        input.form-control#zip(name="zip", placeholder="Zip code", type="text")
+        input.form-control#distance(name="distance", placeholder="Distance", type="text")
+        input.form-control#price_min(name="price_min", placeholder="Price Min", type="text")
+        input.form-control#price_max(name="price_max", placeholder="Price Max", type="text")
+        input.form-control#cover(name="cover", placeholder="Cover", type="text")
+        input.form-control#category(name="category", placeholder="Category ID", type="text")
+
+        button.btn.btn-primary(type="submit") Search
+    hr
+    form.get.form-horizontal(action="/api/posts", method="get", role="form")
+        h1 Search Your book
+        input.form-control#book_id( type="text", name="book_id", placeholder="Book Id")
+
+        button.btn.btn-primary(type="submit") Get
+    script.
+        $("form.search").on("submit", function(){
+            var frm = {
+                keyword: $("#keyword").val()
+            };
+            if( $("#zip").val() != "" ) { frm.zip = $("#zip").val(); }
+            if( $("#distance").val() != "" ) { frm.distance = $("#distance").val(); }
+            if( $("#price_min").val() != "" ) { frm.price_min = $("#price_min").val(); }
+            if( $("#price_max").val() != "" ) { frm.price_max = $("#price_max").val(); }
+            if( $("#cover").val() != "" ) { frm.cover = $("#cover").val(); }
+            if( $("#category").val() != "" ) { frm.category = $("#category").val(); }
+            $.ajax("/api/books",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.get").on("submit", function(){
+            $.ajax("/api/books/"+$("#book_id").val(),
+                {dataType: 'json', data: {}, type : 'GET'}
+            );
+            return false;
+        });

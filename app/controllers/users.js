@@ -38,13 +38,17 @@ module.exports = function(dbPool, passport) {
         create : function(req, res) {
             var param = req.body;
 
+            var terms = param.terms;
+            if(!terms) {
+                terms = 0;
+            }
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
                 connection.query( 'INSERT INTO user(username, email, password, first_name, last_name, phone, address, zip, terms) ' +
                     'values (?, ?, MD5(?), ?, ?, ?, ?, ?, ?)',
-                    [param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, param.terms], function(err, results) {
+                    [param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, terms], function(err, results) {
                         connection.release();
                         if (err) {
                             return Response.error(res, err, 'Did not create new user.');
@@ -132,6 +136,32 @@ module.exports = function(dbPool, passport) {
                         });
                     } else {
                         return Response.error(res, null, 'The user does not exist.');
+                    }
+                })
+            })
+        },
+        /**
+         * @METHOD GET
+         *
+         * @param req [ username ]
+         * @param res
+         */
+        checkid : function(req, res) {
+            var param = req.query;
+
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.');
+                }
+                connection.query( 'SELECT * FROM user WHERE id=?', [param.username], function(err, results) {
+                    connection.release();
+                    if (err) {
+                        return Response.error(res, err, 'Can not check the user name. Sorry for inconvenience.');
+                    }
+                    if (results.length == 0) {
+                        return Response.success(res, 'OK');
+                    } else {
+                        return Response.success(res, 'FAIL')
                     }
                 })
             })
