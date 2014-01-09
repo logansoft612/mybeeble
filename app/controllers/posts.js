@@ -11,7 +11,9 @@ module.exports = function(dbPool, notifier, activity) {
     return {
         /**
          *
-         * @param req [ keyword]
+         * @METHOD GET
+         *
+         * @param req [ keyword, category, cover, price_min, price_max, ~zip, ~distance]
          * @param res
          *
          * keyword : auth, title, isbn, publisher
@@ -94,6 +96,40 @@ module.exports = function(dbPool, notifier, activity) {
                         return Response.success(res, result);
                     });
                 }
+            });
+        },
+        /**
+         * return zipcode list in range
+         *
+         * @METHOD GET
+         *
+         * @param req [zip, distance]
+         * @param res
+         * @url_param - postId
+         *
+         */
+        getzip : function(req, res) {
+            var param = req.query;
+            var sqlZipCodeInRadius = 'SELECT z.*, o.*, (6371 * 2 * ASIN(SQRT( ' +
+                'POWER(SIN((o.org_lat - abs(z.latitude)) * pi()/180 / 2), ' +
+                '2) + COS(o.org_lat * pi()/180 ) * COS(abs(z.latitude) * ' +
+                'pi()/180) * POWER(SIN((o.org_long - z.longitude) * ' +
+                'pi()/180 / 2), 2) ))) as distance ' +
+                'FROM zcta z ' +
+                'LEFT JOIN (SELECT latitude org_lat, longitude org_long, zip org_zip ' +
+                'FROM zcta where zip = ?) o ON 1=1 ' +
+                'having distance <= ?';
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.');
+                }
+                connection.query( sqlZipCodeInRadius, [param.zip, param.distance], function(err, result) {
+                    if (err) {
+                        connection.release();
+                        return Response.error(res, err, 'You can not find posts for now. Sorry for inconvenient');
+                    }
+                    return Response.success(res, result);
+                });
             });
         },
         /**

@@ -39,8 +39,12 @@ module.exports = function(dbPool, passport) {
             var param = req.body;
 
             var terms = param.terms;
+            var profileImgPath = "";
             if(!terms) {
                 terms = 0;
+            }
+            if(req.files && req.files.profile_img) {
+                profileImgPath = req.files.profile_img.originalFilename;
             }
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -67,8 +71,12 @@ module.exports = function(dbPool, passport) {
         update : function(req, res) {
             var param = req.body;
             var userId = req.params.userId;
-            var profilePath = "";
-            if(req.files) {
+            var profileImgPath = "";
+            if(req.files && req.files.profile_img) {
+                profileImgPath = req.files.profile_img.originalFilename;
+            }
+            /*
+            if(req.files && req.files.profile_img) {
                 if (req.files.profile_img.originalFilename === "") {
                     fs.unlink(req.files.profile_img.path);
                 } else {
@@ -92,6 +100,7 @@ module.exports = function(dbPool, passport) {
                     });
                 }
             }
+             */
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -99,10 +108,26 @@ module.exports = function(dbPool, passport) {
                 }
                 connection.query( 'UPDATE user SET username=?, email=?, password=MD5(?), first_name=?' +
                     ', last_name=?, phone=?, address=?, zip=?, profile_img=?, major=?, minor=?, grad_date=? WHERE id=?'
-                    ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profilePath, param.major, param.minor, param.grad_date, userId], function(err, results) {
+                    ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profileImgPath, param.major, param.minor, param.grad_date, userId], function(err, results) {
                         connection.release();
                         if (err) {
+                            if(req.files && req.files.coverfile) {
+                                fs.unlink(req.files.coverfile.path);
+                            }
                             return Response.error(res, err, 'Did not modify the user\'s profile.');
+                        }
+                        if(req.files && req.files.coverfile) {
+                            if (req.files.coverfile.originalFilename === "") {
+                                fs.unlink(req.files.coverfile.path);
+                            } else {
+                                var tmp_path = req.files.coverfile.path;
+                                var target_path = config.path.avatar + result.insertId + '.jpg';
+                                fs.rename(tmp_path, target_path, function(err) {
+                                    if(err) {
+                                        console.log("---file move error. file ID : " + result.insertId + " error : ", err);
+                                    }
+                                });
+                            }
                         }
                         return Response.success(res, results);
                     });

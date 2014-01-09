@@ -151,10 +151,13 @@ module.exports = function(dbPool) {
                     function(err, result) {
                         connection.release();
                         if (err) {
+                            if(req.files && req.files.coverfile) {
+                                fs.unlink(req.files.coverfile.path);
+                            }
                             return Response.error(res, err, 'Did not create the new textbook. Sorry for inconvenience.');
                         }
 
-                        if(req.files) {
+                        if(req.files && req.files.coverfile) {
                             if (req.files.coverfile.originalFilename === "") {
                                 fs.unlink(req.files.coverfile.path);
                             } else {

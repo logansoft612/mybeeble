@@ -79,6 +79,7 @@ module.exports = function (app, passport, auth, dbPool) {
     //app.param('bookId', books.book);
 
     var posts = require('../app/controllers/posts')(dbPool, notification, activities);
+    app.get('/api/zips', auth.requiresLogin, auth.user.hasAuthorization, posts.getzip);
     app.get('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.search);
     app.post('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.create);
     app.get( '/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.read);
