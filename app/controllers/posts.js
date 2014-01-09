@@ -105,7 +105,7 @@ module.exports = function(dbPool, notifier, activity) {
          *
          * @param req [zip, distance]
          * @param res
-         * @url_param - postId
+
          *
          */
         getzip : function(req, res) {

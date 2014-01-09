@@ -111,16 +111,16 @@ module.exports = function(dbPool, passport) {
                     ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profileImgPath, param.major, param.minor, param.grad_date, userId], function(err, results) {
                         connection.release();
                         if (err) {
-                            if(req.files && req.files.coverfile) {
-                                fs.unlink(req.files.coverfile.path);
+                            if(req.files && req.files.profile_img) {
+                                fs.unlink(req.files.profile_img.path);
                             }
                             return Response.error(res, err, 'Did not modify the user\'s profile.');
                         }
-                        if(req.files && req.files.coverfile) {
-                            if (req.files.coverfile.originalFilename === "") {
-                                fs.unlink(req.files.coverfile.path);
+                        if(req.files && req.files.profile_img) {
+                            if (req.files.profile_img.originalFilename === "") {
+                                fs.unlink(req.files.profile_img.path);
                             } else {
-                                var tmp_path = req.files.coverfile.path;
+                                var tmp_path = req.files.profile_img.path;
                                 var target_path = config.path.avatar + result.insertId + '.jpg';
                                 fs.rename(tmp_path, target_path, function(err) {
                                     if(err) {
