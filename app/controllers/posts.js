@@ -13,7 +13,7 @@ module.exports = function(dbPool, notifier, activity) {
          *
          * @METHOD GET
          *
-         * @param req [ keyword, category, cover, price_min, price_max, ~zip, ~distance]
+         * @param req [ keyword, category, type, price_min, price_max, ~zip, ~distance]
          * @param res
          *
          * keyword : auth, title, isbn, publisher
@@ -46,15 +46,15 @@ module.exports = function(dbPool, notifier, activity) {
                     sql += ' AND category_id=' + param.category;
                 }
 
-                if (param.cover) {
-                    if(Object.prototype.toString.call(param.cover) === '[object Array]' && param.cover.length > 0) {
-                        escapedString = connection.escape(param.cover[0]);
-                        for(idx = 1; idx < param.cover.length; idx++) {
-                            escapedString += ", " + connection.escape(param.cover[idx]);
+                if (param.type) {
+                    if(Object.prototype.toString.call(param.type) === '[object Array]' && param.type.length > 0) {
+                        escapedString = connection.escape(param.type[0]);
+                        for(idx = 1; idx < param.type.length; idx++) {
+                            escapedString += ", " + connection.escape(param.type[idx]);
                         }
                         sql += ' AND type IN (' + escapedString +')';
                     } else {
-                        sql += ' AND type = ' + connection.escape(param.cover);
+                        sql += ' AND type = ' + connection.escape(param.type);
                     }
                 }
                 if (param.price_min) {
