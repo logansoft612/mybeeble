@@ -1,0 +1,110 @@
+extends layout
+
+block content
+    | you'v logged in
+    hr
+    = ' ' + JSON.stringify(user)
+    hr
+    form.profileupdate.form-horizontal
+        h1 Modify User Profile
+        .form-group
+            label.col-lg-2.control-label(for="name") Full name
+            .col-lg-10
+                input.form-control#name(type="text", name="name", placeholder="Full name", value="")
+            .form-group
+                label.col-lg-2.control-label(for="email") Email
+                .col-lg-10
+                    input.form-control#email(type="text", name="email", placeholder="Email", value="")
+            .form-group
+                label.col-lg-2.control-label(for="username") Username
+                .col-lg-10
+                    input.form-control#username(type="text", name="username", placeholder="Username", value="")
+            .form-group
+                label.col-lg-2.control-label(for="password") Password
+                .col-lg-10
+                    input.form-control#password(type="password", name="password", placeholder="Password")
+            input.form-control#firstname(type="text", name="first_name", placeholder="firstname")
+            input.form-control#lastname(type="text", name="last_name", placeholder="lastname")
+            input.form-control#phone(type="text", name="phone", placeholder="phone")
+            input.form-control#address(type="text", name="address", placeholder="address")
+            input.form-control#zip(type="text", name="zip", placeholder="zip")
+            label
+                input.form-control#terms(type="checkbox", name="terms")
+                | terms
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") update
+
+    hr
+
+    div.signin.form-horizontal
+        h1 Delete User
+        input.form-control#userid(type="text", name="userid", value=user.id)
+        button.btn.btn-primary(type="submit", onclick="submitDelete()") Delete User
+
+    script.
+        function submitDelete() {
+            $.ajax("/api/users/"+$("#userid").val(),
+                {dataType: 'json', type : 'DELETE'}
+            ).complete(function(data){console.log(data);});
+        };
+        $("form.profileupdate").on('submit',
+            function() {
+                var frm = {
+                    username: $("#username").val(),
+                    email: $("#email").val(),
+                    password: $("#password").val(),
+                    first_name: $("#first_name").val(),
+                    last_name: $("#last_name").val(),
+                    phone: $("#phone").val(),
+                    address: $("#address").val(),
+                    zip: $("#zip").val()
+                };
+                $.ajax("/api/users/"+$("#userid").val(),
+                    {dataType: 'json', data: frm, type : 'PUT'}
+                ).complete(function(data){console.log(data);});
+                return false;
+            });
+
+
+    // if user.role == 'admin'
+    hr
+    form.showusers(action="/api/users", method="GET")
+        h1 Get Users list
+        input(type="submit") Get All Users
+    hr
+    form.changepermission
+        h1 Change User permission
+        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
+        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
+        input(type="submit") Get All Users
+
+    script.
+        $("form.changepermission").on('submit',
+            function() {
+                var frm = {
+                role: $("#cp_permission").val(),
+            };
+            $.ajax("/api/users/"+$("#cp_userid").val()+"/permission",
+                    {dataType: 'json', data: frm, type : 'PUT'}
+                ).complete(function(data){console.log(data);});
+                    return false;
+                });
+    hr
+    form.givefeedback
+        h1 Give Feedback
+        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
+        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
+        input(type="submit") Get All Users
+    hr
+    form.checkfirstlogin
+        h1 Give Feedback
+        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
+        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
+        input(type="submit") Get All Users
+    hr
+    form.checkfirstlogin
+        h1 Give Feedback
+        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
+        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
+        input(type="submit") Get All Users

@@ -74,7 +74,7 @@ module.exports = function(app, passport) {
         app.use(express.methodOverride());
 
         //express/mongo session storage
-        app.use(express.session({secret: 'mybeeble-3hXa6JpcA -?exc]_64_4.Y%*:Zj@_$;lY/jLOy?'}))
+        app.use(express.session({secret: 'mybeeble-3hXa6JpcA -?exc]_64_4.Y%*:Zj@_$;lY/jLOy?'/*, cookie: { expires: new Date(Date.now() + 60 * 10000), maxAge: 60 * 10000}*/}));
 
         //connect flash for flash messages
         //app.use(flash());
@@ -110,6 +110,14 @@ module.exports = function(app, passport) {
                 error: 'Not found'
             });
         });
+
+        app.all('*', function(req, res,next){
+            //if(!req.get('Origin')) return next();
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+            res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+            next();
+        })
 
         // replaces all html files with jade templates, because jade is cool
         app.get('/js/modules/*.html', function (req, res) {
