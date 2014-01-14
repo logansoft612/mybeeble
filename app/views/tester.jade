@@ -5,12 +5,10 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.profileupdate.form-horizontal
+    form.profileupdate.form-horizontal(enctype="multipart/form-data", method="POST")
         h1 Modify User Profile
+            small POST /api/siginin
         .form-group
-            label.col-lg-2.control-label(for="name") Full name
-            .col-lg-10
-                input.form-control#name(type="text", name="name", placeholder="Full name", value="")
             .form-group
                 label.col-lg-2.control-label(for="email") Email
                 .col-lg-10
@@ -23,88 +21,238 @@ block content
                 label.col-lg-2.control-label(for="password") Password
                 .col-lg-10
                     input.form-control#password(type="password", name="password", placeholder="Password")
-            input.form-control#firstname(type="text", name="first_name", placeholder="firstname")
-            input.form-control#lastname(type="text", name="last_name", placeholder="lastname")
-            input.form-control#phone(type="text", name="phone", placeholder="phone")
-            input.form-control#address(type="text", name="address", placeholder="address")
-            input.form-control#zip(type="text", name="zip", placeholder="zip")
-            label
-                input.form-control#terms(type="checkbox", name="terms")
-                | terms
+            .form-group
+                label.col-lg-2.control-label(for="first_name") First name
+                .col-lg-10
+                    input.form-control#first_name(type="text", name="first_name", placeholder="First name")
+            .form-group
+                label.col-lg-2.control-label(for="last_name") Last name
+                .col-lg-10
+                    input.form-control#last_name(type="text", name="last_name", placeholder="Last name")
+            .form-group
+                label.col-lg-2.control-label(for="phone") Phone
+                .col-lg-10
+                    input.form-control#phone(type="text", name="phone", placeholder="Phone")
+            .form-group
+                label.col-lg-2.control-label(for="address") Address
+                .col-lg-10
+                    input.form-control#address(type="text", name="address", placeholder="address")
+            .form-group
+                label.col-lg-2.control-label(for="zip") Zip
+                .col-lg-10
+                    input.form-control#zip(type="text", name="zip", placeholder="zip")
+            .form-group
+                label.col-lg-2.control-label(for="profile_img") Profile
+                .col-lg-10
+                    input.form-control#profile_img(type="file", name="profile_img", placeholder="Profile")
+            .form-group
+                label.col-lg-2.control-label(for="major") Major
+                .col-lg-10
+                    input.form-control#major(type="text", name="major", placeholder="Major")
+            .form-group
+                label.col-lg-2.control-label(for="minor") Minor
+                .col-lg-10
+                    input.form-control#minor(type="text", name="minor", placeholder="Minor")
+            .form-group
+                label.col-lg-2.control-label(for="grad_date") Grad Date
+                .col-lg-10
+                    input.form-control#grad_date(type="text", name="grad_date", placeholder="Grad Date")
         .form-group
             .col-lg-offset-2.col-lg-10
                 button.btn.btn-primary(type="submit") update
 
     hr
 
-    div.signin.form-horizontal
+    form.deleteuser.form-horizontal
         h1 Delete User
-        input.form-control#userid(type="text", name="userid", value=user.id)
-        button.btn.btn-primary(type="submit", onclick="submitDelete()") Delete User
-
-    script.
-        function submitDelete() {
-            $.ajax("/api/users/"+$("#userid").val(),
-                {dataType: 'json', type : 'DELETE'}
-            ).complete(function(data){console.log(data);});
-        };
-        $("form.profileupdate").on('submit',
-            function() {
-                var frm = {
-                    username: $("#username").val(),
-                    email: $("#email").val(),
-                    password: $("#password").val(),
-                    first_name: $("#first_name").val(),
-                    last_name: $("#last_name").val(),
-                    phone: $("#phone").val(),
-                    address: $("#address").val(),
-                    zip: $("#zip").val()
-                };
-                $.ajax("/api/users/"+$("#userid").val(),
-                    {dataType: 'json', data: frm, type : 'PUT'}
-                ).complete(function(data){console.log(data);});
-                return false;
-            });
-
+            small DELETE /api/users/:userId
+        .form-group
+            input.form-control#userid(type="text", name="userid", value=user.id)
+        button.btn.btn-primary(type="submit") Delete User
 
     // if user.role == 'admin'
     hr
-    form.showusers(action="/api/users", method="GET")
-        h1 Get Users list
-        input(type="submit") Get All Users
-    hr
-    form.changepermission
-        h1 Change User permission
-        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
-        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
-        input(type="submit") Get All Users
 
+    form.getuserslist.form-horizontal(action="/api/users", method="GET")
+        h1 Get Users list (Admin)
+            small GET /api/users
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="offset") Offset
+                .col-lg-10
+                    input.form-control#offset(type="text", name="offset", placeholder="Offset")
+            .form-group
+                label.col-lg-2.control-label(for="len") Length
+                .col-lg-10
+                    input.form-control#len(type="text", name="len", placeholder="Length")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get All Users
+    hr
+    form.getuser.form-horizontal(action="/api/users", method="GET")
+        h1 Get User Info
+            small GET /api/users/:userId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="gu_user_id") User ID
+                .col-lg-10
+                    input.form-control#gu_user_id(type="text", name="user_id", placeholder="User ID", value=user.id)
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get User Info
+    hr
+    form.changepermission.form-horizontal
+        h1 Change User permission (Admin)
+            small PUT /api/users/:userId/permission
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="offset") User ID
+                .col-lg-10
+                    input.form-control#cp_userid(type="text", name="userid", placeholder="User ID")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="offset") Role
+                .col-lg-10
+                    input.form-control#cp_permission(type="text", name="role", placeholder="Permission - new, active, admin ")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Change Permission
+    hr
+    form.givefeedback.form-horizontal
+        h1 Give Feedback
+            small PUT /api/users/:userId/rate
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="gf_user_id") User ID
+                .col-lg-10
+                    input.form-control#gf_user_id(type="text", name="user_id", placeholder="User ID", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="rated_user_id") Rated User ID
+                .col-lg-10
+                    input.form-control#rated_user_id(type="text", name="rated_user_id", placeholder="Rated User ID")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="rate") Rate
+                .col-lg-10
+                    input.form-control#rate(type="text", name="rate", placeholder="Rate")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="comment") Comment
+                .col-lg-10
+                    input.form-control#comment(type="text", name="comment", placeholder="Comment")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="transaction_id") Transaction ID
+                .col-lg-10
+                    input.form-control#transaction_id(type="text", name="transaction_id", placeholder="Transaction ID")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Rate User
+    hr
+    form.checkfirstlogin.form-horizontal
+        h1 Did first login
+            small PUT /api/users/:userId/firstlogin
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="fl_user_id") User ID
+                .col-lg-10
+                    input.form-control#fl_user_id(type="text", name="user_id", placeholder="User ID", value=user.id)
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Check First Login
+    hr
+    form.acceptterm.form-horizontal
+        h1 Accept Term
+            small PUT /api/users/:userId/acceptterm
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="at_user_id", value=user.id) User ID
+                .col-lg-10
+                    input.form-control#at_user_id(type="text", name="user_id", placeholder="User ID", value=user.id)
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Accept Term
+    form.getfeedbacklist.form-horizontal(method="GET")
+        h1 Get Feedback list
+            small GET /api/users/:userId/feedback
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="fb_user_id") User ID
+                .col-lg-10
+                    input.form-control#fb_user_id(type="text", name="user_id", placeholder="User ID", value=user.id)
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get Feedback
     script.
-        $("form.changepermission").on('submit',
-            function() {
-                var frm = {
+
+        $("form.profileupdate").on('submit', function() {
+            $(this).attr("action", "/api/users/"+$("#userid").val());
+            return true;
+        });
+
+        $("form.deleteuser").on('submit',function(){
+            $.ajax("/api/users/"+$("#userid").val(),
+                {dataType: 'json', type : 'DELETE'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });
+
+        $("form.getuserslist").on('submit',function(){
+            var frm = {
+                offset: $("#offset").val(),
+                len: $("#len").val()
+            };
+            $.ajax("/api/users/"+$("#userid").val(),
+                {dataType: 'json', data: frm, type : 'GET'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });
+
+        $("form.getuser").on('submit',function(){
+            $.ajax("/api/users/"+$("#gu_user_id").val(),
+                {dataType: 'json', type : 'GET'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });
+
+        $("form.changepermission").on('submit', function() {
+            var frm = {
                 role: $("#cp_permission").val(),
             };
             $.ajax("/api/users/"+$("#cp_userid").val()+"/permission",
-                    {dataType: 'json', data: frm, type : 'PUT'}
-                ).complete(function(data){console.log(data);});
-                    return false;
-                });
-    hr
-    form.givefeedback
-        h1 Give Feedback
-        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
-        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
-        input(type="submit") Get All Users
-    hr
-    form.checkfirstlogin
-        h1 Give Feedback
-        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
-        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
-        input(type="submit") Get All Users
-    hr
-    form.checkfirstlogin
-        h1 Give Feedback
-        input#cp_userid(type="text", name="cp_userid", placeholder="User ID")
-        input#cp_permission(type="text", name="cp_permission", placeholder="Permission - new, active, admin ")
-        input(type="submit") Get All Users
+                {dataType: 'json', data: frm, type : 'PUT'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });
+        $("form.givefeedback").on('submit', function() {
+            var frm = {
+                rated_user_id: $("#rated_user_id").val(),
+                rate: $("#rate").val(),
+                comment: $("#comment").val(),
+                transaction_id: $("#transaction_id").val()
+            };
+            $.ajax("/api/users/"+$("#gf_user_id").val()+"/rate",
+                {dataType: 'json', data: frm, type : 'POST'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });
+        $("form.checkfirstlogin").on('submit', function() {
+            $.ajax("/api/users/"+$("#fl_user_id").val()+"/firstlogin",
+                {dataType: 'json', type : 'PUT'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });
+        $("form.acceptterm").on('submit', function() {
+            $.ajax("/api/users/"+$("#at_user_id").val()+"/acceptterm",
+                {dataType: 'json', type : 'PUT'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });
+
+        $("form.getfeedbacklist").on('submit', function() {
+            $.ajax("/api/users/"+$("#fb_user_id").val()+"/feedback",
+                {dataType: 'json', type : 'GET'}
+            ).complete(function(data){console.log(data);});
+            return false;
+        });

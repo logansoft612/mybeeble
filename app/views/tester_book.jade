@@ -7,13 +7,41 @@ block content
     hr
     form.search.form-horizontal(action="/api/books", method="get", role="form")
         h1 Search Your book
-        input.form-control#keyword( type="text", name="keyword", placeholder="title, isbn, author keyword")
-        input.form-control#zip(name="zip", placeholder="Zip code", type="text")
-        input.form-control#distance(name="distance", placeholder="Distance", type="text")
-        input.form-control#price_min(name="price_min", placeholder="Price Min", type="text")
-        input.form-control#price_max(name="price_max", placeholder="Price Max", type="text")
-        input.form-control#cover(name="cover", placeholder="Cover", type="text")
-        input.form-control#category(name="category", placeholder="Category ID", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#keyword( type="text", name="keyword", placeholder="title, isbn, author keyword")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#zip(name="zip", placeholder="Zip code", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#distance(name="distance", placeholder="Distance", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#price_min(name="price_min", placeholder="Price Min", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#price_max(name="price_max", placeholder="Price Max", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#cover(name="cover", placeholder="Cover", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#category(name="category", placeholder="Category ID", type="text")
 
         button.btn.btn-primary(type="submit") Search
     hr

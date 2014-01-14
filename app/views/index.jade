@@ -5,6 +5,7 @@ block content
     p Welcome to #{title}
     div.col-lg-12
         h1 login
+            small POST /api/siginin
         form.signin.form-horizontal(action="/api/signin", method="post", role="form")
             .form-group
                 label.col-lg-2.control-label(for="email") Email
@@ -23,16 +24,22 @@ block content
         hr
         form.signin.form-horizontal(action="/api/users/pwdreset", method="post", role="form")
             h1 Reset Password
+                small POST /api/users/pwdreset
             input.form-control#email(type="text", name="email", placeholder="Your Email Address", value="")
             button.btn.btn-primary(type="submit") Reset Password
 
         hr
         form.signup.form-horizontal(action="/api/users", method="post", role="form")
             h1 Sign Up
+                small POST /api/users
             .form-group
-                label.col-lg-2.control-label(for="name") Full name
+                label.col-lg-2.control-label(for="first_name") First Name
                 .col-lg-10
-                    input.form-control#name(type="text", name="name", placeholder="Full name", value="")
+                    input.form-control#first_name(type="text", name="first_name", placeholder="Full name", value="")
+            .form-group
+                label.col-lg-2.control-label(for="last_name") Last Name
+                .col-lg-10
+                    input.form-control#first_name(type="text", name="last_name", placeholder="Full name", value="")
             .form-group
                 label.col-lg-2.control-label(for="email") Email
                 .col-lg-10

@@ -12,3 +12,12 @@ pre {
     background-color: #ffffcc;
     padding: 20px;
 }
+
+h1 small {
+    font-size: 0.7em;
+    font-style: italic;
+    color: blue;
+}
+h1 small:before{
+    content: " - "
+}

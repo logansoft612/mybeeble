@@ -7,43 +7,130 @@ block content
     hr
     form.all.form-horizontal
         h1 Get All wishes
-        input.form-control#all_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#all_offset(type="text", placeholder="Offset")
-        input.form-control#all_len(type="text", placeholder="Length")
-        button.btn.btn-primary(type="submit") Get All
+            small GET /api/users/:userId/wishes
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") User ID
+                .col-lg-10
+                    input.form-control#all_user_id(placeholder="User ID", type="text", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_offset") Offset
+                .col-lg-10
+                    input.form-control#all_offset(type="text", placeholder="Offset")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_len") Length
+                .col-lg-10
+                    input.form-control#all_len(type="text", placeholder="Length")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get All
     hr
     form.create.form-horizontal
         h1 Create new wish
-        input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
+            small POST /api/users/:userId/wishes
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") User ID
+                .col-lg-10
+                    input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
         br
-        input.form-control#create_title(placeholder="Title", type="text")
-        input.form-control#create_isbn(placeholder="isbn", type="text")
-        input.form-control#create_price_min(placeholder="Price Min", type="text")
-        input.form-control#create_price_max(placeholder="Price Max", type="text")
-        button.btn.btn-primary(type="submit") Create
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") Title
+                .col-lg-10
+                    input.form-control#create_title(placeholder="Title", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") ISBN
+                .col-lg-10
+                    input.form-control#create_isbn(placeholder="isbn", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") Price Min
+                .col-lg-10
+                    input.form-control#create_price_min(placeholder="Price Min", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") Price Max
+                .col-lg-10
+                    input.form-control#create_price_max(placeholder="Price Max", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Create
     hr
     form.get.form-horizontal
         h1 Get Wish info
-        input.form-control#get_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#get_wish_id(placeholder="Wish Id", type="text")
-        button.btn.btn-primary(type="submit") Get Info
+            small GET /api/users/:userId/wishes/:wishId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") User ID
+                .col-lg-10
+                    input.form-control#get_user_id(placeholder="user_id", type="text", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") Wish ID
+                .col-lg-10
+                    input.form-control#get_wish_id(placeholder="Wish Id", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get Info
     hr
     form.update.form-horizontal
         h1 Update Wish Info
-        input.form-control#update_user_id(placeholder="User Id", type="text", value=user.id)
-        input.form-control#update_wish_id(placeholder="Wish Id", type="text")
+            small PUT /api/users/:userId/wishes/:wishId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="update_user_id") User ID
+                .col-lg-10
+                    input.form-control#update_user_id(placeholder="User Id", type="text", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="update_wish_id") Wish ID
+                .col-lg-10
+                    input.form-control#update_wish_id(placeholder="Wish Id", type="text")
         br
-        input.form-control#update_title(placeholder="Title", type="text")
-        input.form-control#update_isbn(placeholder="isbn", type="text")
-        input.form-control#update_price_min(placeholder="Price Min", type="text")
-        input.form-control#update_price_max(placeholder="Price Max", type="text")
-        button.btn.btn-primary(type="submit") Update
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="update_title") Title
+                .col-lg-10
+                    input.form-control#update_title(placeholder="Title", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="update_isbn") ISBN
+                .col-lg-10
+                    input.form-control#update_isbn(placeholder="isbn", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="update_price_min") Price Min
+                .col-lg-10
+                    input.form-control#update_price_min(placeholder="Price Min", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="update_price_max") Price Max
+                .col-lg-10
+                    input.form-control#update_price_max(placeholder="Price Max", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Update
     hr
     form.delete.form-horizontal
         h1 Delete Wish info
-        input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#delete_wish_id(placeholder="Wish Id", type="text")
-        button.btn.btn-primary(type="submit") Delete
+            small DELETE /api/users/:userId/wishes/:wishId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="delete_user_id") User ID
+                .col-lg-10
+                    input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="delete_wish_id") Wish ID
+                .col-lg-10
+                    input.form-control#delete_wish_id(placeholder="Wish Id", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Delete
 
     script.
         $("form.all").on("submit", function(){

@@ -13,19 +13,20 @@ module.exports = function (app, passport, auth, dbPool) {
     }), users.session);*/
     app.post('/api/signin', users.session);
     app.post('/api/users', users.create);
-    app.get('/api/users', auth.requiresLogin, auth.user.isSuperman, users.all);
-    app.get('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.get);
-    app.put('/api/users/:userId/permission', auth.requiresLogin, auth.user.isSuperman, users.changePermission);
+    app.post('/api/users/pwdreset', users.pwdreset);
+    app.get('/api/logout', auth.requiresLogin, users.signout);
 
+    app.get('/api/users', auth.requiresLogin, auth.user.isSuperman, users.all);
+
+    app.get('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.get);
+    app.post('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.update);
+    app.del('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.closeAccount);
+
+    app.put('/api/users/:userId/permission', auth.requiresLogin, auth.user.isSuperman, users.changePermission);
     app.post('/api/users/:userId/rate', auth.requiresLogin, auth.user.hasAuthorization, users.rate);
     app.put('/api/users/:userId/firstlogin', auth.requiresLogin, auth.user.hasAuthorization, users.firstlogin);
     app.put('/api/users/:userId/acceptterm', auth.requiresLogin, auth.user.hasAuthorization, users.acceptterm);
-    app.get('/api/users/:userId/feedback', auth.requiresLogin, auth.user.hasAuthorization, users.feedback);
-
-    app.post('/api/users/pwdreset', users.pwdreset);
-    app.put('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.update);
-    app.del('/api/users/:userId', auth.requiresLogin, auth.user.hasAuthorization, users.closeAccount);
-    app.get('/api/logout', auth.requiresLogin, users.signout);
+    app.get('/api/users/:userId/feedback', auth.requiresLogin, users.feedback);
 
     //Finish with setting up the userId param
     app.param('userId', users.user);

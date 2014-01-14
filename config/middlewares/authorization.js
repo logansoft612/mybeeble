@@ -1,4 +1,5 @@
 /*jslint node: true */
+var Response        = require('../../app/util/response');
 /**
  * Generic require login routing middleware
  */

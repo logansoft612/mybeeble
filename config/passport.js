@@ -33,7 +33,7 @@ module.exports = function(passport, dbPool) {
                 if (err) {
                     return done(err);
                 }
-                connection.query("SELECT id, id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role FROM user WHERE username = ? AND password = MD5(?)", [username, password], function(err, user) {
+                connection.query("SELECT id, id as user_id, username, email, first_name, last_name, profile_img, user_welcome, account_type, terms, phone, address, zip, longitude, latitude, notification_cnt, ct, ut, del, role FROM user WHERE (username = ? OR email = ?) AND password = MD5(?)", [username, username, password], function(err, user) {
                     connection.release();
                     if (err) {
                         return done(err);

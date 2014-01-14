@@ -7,29 +7,77 @@ block content
     hr
     form.all.form-horizontal(method="get", role="form")
         h1 Get All bookmarks
-        input.form-control#all_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#all_offset(type="text", placeholder="Offset")
-        input.form-control#all_len(type="text", placeholder="Length")
-        button.btn.btn-primary(type="submit") Get All
+            small GET /api/users/:userId/bookmarks
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_user_id") User ID
+                .col-lg-10
+                    input.form-control#all_user_id(placeholder="user_id", type="text", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_offset") Offset
+                .col-lg-10
+                    input.form-control#all_offset(type="text", placeholder="Offset")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="all_len") Length
+                .col-lg-10
+                    input.form-control#all_len(type="text", placeholder="Length")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get All
     hr
     form.create.form-horizontal(method="post", role="form")
         h1 Create new bookmark
-        input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
+            small POST /api/users/:userId/bookmarks
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_user_id") User ID
+                .col-lg-10
+                    input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
         br
-        input.form-control#create_book_id(placeholder="Textbook Id", type="text")
-        button.btn.btn-primary(type="submit") Create
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") Bookmark ID
+                .col-lg-10
+                    input.form-control#create_book_id(placeholder="Textbook Id", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Create
     hr
     form.get.form-horizontal
         h1 Get bookmark info
-        input.form-control#get_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#get_bookmark_id(placeholder="bookmark Id", type="text")
-        button.btn.btn-primary(type="submit") Get Info
+            small POST /api/users/:userId/bookmarks/:bookmarkId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#get_user_id(placeholder="user_id", type="text", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") Bookmark ID
+                .col-lg-10
+                    input.form-control#get_bookmark_id(placeholder="bookmark Id", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get Info
     hr
     form.delete.form-horizontal
         h1 Delete bookmark info
-        input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#delete_bookmark_id(placeholder="bookmark Id", type="text")
-        button.btn.btn-primary(type="submit") Delete
+            small DELETE /api/users/:userId/bookmarks/:bookmarkId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") User ID
+                .col-lg-10
+                    input.form-control#delete_user_id(placeholder="user_id", type="text", value=user.id)
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="create_book_id") Bookmark ID
+                .col-lg-10
+                    input.form-control#delete_bookmark_id(placeholder="bookmark Id", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Delete
 
     script.
         $("form.all").on("submit", function(){

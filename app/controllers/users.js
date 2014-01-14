@@ -31,6 +31,7 @@ module.exports = function(dbPool, passport) {
         },
 
         /**
+         * @METHOD POST
          *
          * @param req [ username, email, password, first_name, last_name, phone, address, zip, terms ]
          * @param res
@@ -106,9 +107,10 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'UPDATE user SET username=?, email=?, password=MD5(?), first_name=?' +
+                var sql = connection.format( 'UPDATE user SET username=?, email=?, password=MD5(?), first_name=?' +
                     ', last_name=?, phone=?, address=?, zip=?, profile_img=?, major=?, minor=?, grad_date=? WHERE id=?'
-                    ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profileImgPath, param.major, param.minor, param.grad_date, userId], function(err, results) {
+                    ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profileImgPath, param.major, param.minor, param.grad_date, userId]);
+                connection.query(sql, function(err, result) {
                         connection.release();
                         if (err) {
                             if(req.files && req.files.profile_img) {
@@ -121,15 +123,15 @@ module.exports = function(dbPool, passport) {
                                 fs.unlink(req.files.profile_img.path);
                             } else {
                                 var tmp_path = req.files.profile_img.path;
-                                var target_path = config.path.avatar + result.insertId + '.jpg';
+                                var target_path = config.path.avatar + userId + '.jpg';
                                 fs.rename(tmp_path, target_path, function(err) {
                                     if(err) {
-                                        console.log("---file move error. file ID : " + result.insertId + " error : ", err);
+                                        console.log("---file move error. file ID : " + userId + " error : ", err);
                                     }
                                 });
                             }
                         }
-                        return Response.success(res, results);
+                        return Response.success(res, result);
                     });
             });
         },
@@ -287,18 +289,42 @@ module.exports = function(dbPool, passport) {
                     });
             });
         },
+        /**
+         * @METHOD GET
+         *
+         * @param req { ~offset: {number}, ~len:{number}}
+         * @param res
+         */
 
         all: function(req, res) {
+            var param = req.query;
+            var totalCnt = 0;
+
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'SELECT * FROM user', function(err, result) {
-                    connection.release();
+                connection.query( "SELECT COUNT(*) as cnt FROM user ", function(err, result) {
                     if (err) {
-                        return Response.error(res, err, 'Can not get user list.');
+                        return Response.error(res, err, 'You can not get user list. Sorry for inconvenient');
                     }
-                    return Response.success(res, result);
+                    if(result.length > 0) {
+                        totalCnt = result[0]['cnt'];
+                    }
+                    sql = 'SELECT * FROM user ';
+                    if (param.len && param.len > 0) {
+                        sql += ' LIMIT ' + param.len;
+                        if (param.offset && param.offset > 0) {
+                            sql += ' OFFSET ' + param.offset;
+                        }
+                    }
+                    connection.query( sql, function(err, result) {
+                        connection.release();
+                        if (err) {
+                            return Response.error(res, err, 'You can not get user list. Sorry for inconvenient');
+                        }
+                        return Response.success(res, {total: totalCnt, result: result});
+                    });
                 });
             });
         },
@@ -331,11 +357,11 @@ module.exports = function(dbPool, passport) {
          * Give feedback to a user.
          * @METHOD POST
          *
-         * @param req { rated_user_id : {number} , rate : {number}, comment : {string}, transaction_id: {string} }
+                 * @param req { rated_user_id : {number} , rate : {number}, comment : {string}, transaction_id: {string} }
          * @param res {success: 1, result: {} }
          * @url_param - userId
          */
-        rate: function() {
+        rate: function(req, res) {
             var userId = req.params.userId;
             var param = req.body;
             dbPool.getConnection(function(err, connection){
@@ -343,13 +369,13 @@ module.exports = function(dbPool, passport) {
                     return Response.error(res, err, 'Can not get db connection.  Sorry for inconvenient.');
                 }
                 connection.query( 'INSERT INTO user_feedback(user_id, marker_id, rate, comment, transaction_id) ' +
-                'values (?, ?, ?, ?, ?)', [param.rated_user_id, userId, param.rate, param.comment, param.tranaction_id], function(err, result) {
+                'values (?, ?, ?, ?, ?)', [param.rated_user_id, userId, param.rate, param.comment, param.transaction_id], function(err, result) {
                     if (err) {
                         connection.release();
                         return Response.error(res, err, 'Can not not give feedback. Sorry for inconvenient.');
                     }
                     connection.query( 'UPDATE user SET feedback=(SELECT avg(rate) FROM user_feedback WHERE user_id=?) WHERE id=?',
-                        [param.rated_user_id], function(err, result2){
+                        [param.rated_user_id, param.rated_user_id], function(err, result2){
                             connection.release();
                             return Response.success(res, result);
                         });
@@ -364,7 +390,7 @@ module.exports = function(dbPool, passport) {
          * @param res {success: 1, result: {} }
          * @url_param - userId
          */
-        firstlogin: function() {
+        firstlogin: function(req, res) {
             var userId = req.params.userId;
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -387,7 +413,7 @@ module.exports = function(dbPool, passport) {
          * @param res {success: 1, result: {} }
          * @url_param - userId
          */
-        acceptterm: function() {
+        acceptterm: function(req, res) {
             var userId = req.params.userId;
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -410,7 +436,7 @@ module.exports = function(dbPool, passport) {
          * @param res {success: 1, result: {} }
          * @url_param - userId
          */
-        feedback: function() {
+        feedback: function(req, res) {
             var userId = req.params.userId;
             dbPool.getConnection(function(err, connection){
                 if (err) {
