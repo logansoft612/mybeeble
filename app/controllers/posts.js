@@ -83,6 +83,7 @@ module.exports = function(dbPool, notifier, activity) {
                         }
                         sql += ' AND zip IN (' + escapedString +')';
                         console.log(sql);
+                        sql += " LIMIT 20";
                         connection.query( sql, function(err, result) {
                             connection.release();
                             if (err) {
@@ -93,6 +94,7 @@ module.exports = function(dbPool, notifier, activity) {
                     });
                 } else {
                     console.log(sql);
+                    sql += " LIMIT 20";
                     connection.query( sql, function(err, result) {
                         connection.release();
                         if (err) {

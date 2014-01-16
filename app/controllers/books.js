@@ -22,15 +22,16 @@ module.exports = function(dbPool) {
             var keyword = param.keyword;
 
             if(!keyword || keyword === '') {
-                keyword = '';
+                keyword = '%';
+            } else {
+                keyword = '%'+keyword+'%';
             }
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                keyword = '%'+keyword+'%';
                 connection.query( 'SELECT * FROM textbook WHERE status=? AND ' +
-                    ' ( isbn13 LIKE ? OR  author LIKE ? OR  title LIKE ? OR  publisher LIKE ?)'
+                    ' ( isbn13 LIKE ? OR  author LIKE ? OR  title LIKE ? OR  publisher LIKE ?) LIMIT 20";'
                     , [config.app.textbook_status[2] /* allow */, keyword, keyword, keyword , keyword], function(err, result) {
                         connection.release();
                         if (err) {
@@ -87,6 +88,8 @@ module.exports = function(dbPool) {
                             if (param.offset && param.offset > 0) {
                                 sql += ' OFFSET ' + param.offset;
                             }
+                        } else {
+                            sql += ' LIMIT 20';
                         }
                         connection.query( sql, function(err, result) {
                             connection.release();
