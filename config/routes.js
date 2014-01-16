@@ -74,13 +74,14 @@ module.exports = function (app, passport, auth, dbPool) {
     app.get('/api/books/list', books.all);
     app.get('/api/books/:bookId', books.read);
     app.post('/api/books', books.create);
-    app.put('/api/books/:bookId', books.update);
+    app.post('/api/books/:bookId', books.update);
+    app.put('/api/books/:bookId/status', books.status);
     app.del('/api/books/:bookId', books.delete);
 
     //app.param('bookId', books.book);
 
     var posts = require('../app/controllers/posts')(dbPool, notification, activities);
-    app.get('/api/zips', auth.requiresLogin, auth.user.hasAuthorization, posts.getzip);
+    app.get('/api/zips', auth.requiresLogin, posts.getzip);
     app.get('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.search);
     app.post('/api/users/:userId/posts', auth.requiresLogin, auth.user.hasAuthorization, posts.create);
     app.get( '/api/users/:userId/posts/:postId', auth.requiresLogin, auth.user.hasAuthorization, posts.read);

@@ -5,91 +5,211 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.search.form-horizontal(action="/api/books", method="get", role="form")
-        h1 Search Your book
+    form.searchbooks.form-horizontal(action="/api/books", method="get", role="form")
+        h1 Search Registered books
+            small GET /api/books
         .form-group
             .form-group
-                label.col-lg-2.control-label(for="create_book_id") User ID
+                label.col-lg-2.control-label(for="sb_keyword") Keyword
                 .col-lg-10
-                    input.form-control#keyword( type="text", name="keyword", placeholder="title, isbn, author keyword")
-        .form-group
-            .form-group
-                label.col-lg-2.control-label(for="create_book_id") User ID
-                .col-lg-10
-                    input.form-control#zip(name="zip", placeholder="Zip code", type="text")
-        .form-group
-            .form-group
-                label.col-lg-2.control-label(for="create_book_id") User ID
-                .col-lg-10
-                    input.form-control#distance(name="distance", placeholder="Distance", type="text")
-        .form-group
-            .form-group
-                label.col-lg-2.control-label(for="create_book_id") User ID
-                .col-lg-10
-                    input.form-control#price_min(name="price_min", placeholder="Price Min", type="text")
-        .form-group
-            .form-group
-                label.col-lg-2.control-label(for="create_book_id") User ID
-                .col-lg-10
-                    input.form-control#price_max(name="price_max", placeholder="Price Max", type="text")
-        .form-group
-            .form-group
-                label.col-lg-2.control-label(for="create_book_id") User ID
-                .col-lg-10
-                    input.form-control#cover(name="cover", placeholder="Cover", type="text")
-        .form-group
-            .form-group
-                label.col-lg-2.control-label(for="create_book_id") User ID
-                .col-lg-10
-                    input.form-control#category(name="category", placeholder="Category ID", type="text")
-
-        button.btn.btn-primary(type="submit") Search
-    hr
-    form.get.form-horizontal(action="/api/books", method="get", role="form")
-        h1 Search Your book
-        input.form-control#book_id( type="text", name="book_id", placeholder="Book Id")
-
-        button.btn.btn-primary(type="submit") Get
-    form.create(action="/api/users/"+user.id+"/books",enctype="multipart/form-data", method="post", role="form")
-        h1 Post New Book
-        input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
-        br
-        input#coverfile( type="file", name="coverfile")
-
-        input.form-control#title(name="title", placeholder="title", type="text")
-        input.form-control#author(name="author", placeholder="author", type="text")
-        //input.form-control#category(name="category", placeholder="category", type="text")
-        input.form-control#isbn(name="isbn", placeholder="isbn", type="text")
-        input.form-control#publisher(name="publisher", placeholder="publisher", type="text")
-        input.form-control#type(name="type", placeholder="type", type="text")
-        //input.form-control#price(name="price", placeholder="price", type="text")
-        //input.form-control#description(name="description", placeholder="description", type="text")
+                    input.form-control#sb_keyword( type="text", name="keyword", placeholder="title, isbn, author, keyword")
         .form-group
             .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Regist a new textbook
+                button.btn.btn-primary(type="submit") Search
+    hr
+    form.retrivebooklist.form-horizontal(action="/api/books", method="get", role="form")
+        h1 Retrive book list (For Admin User)
+            small GET /api/books/list
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="rl_keyword") Keyword (Optional)
+                .col-lg-10
+                    input.form-control#rl_keyword( type="text", name="keyword", placeholder="title, isbn, author, keyword")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="rl_offset") Offset (Optional)
+                .col-lg-10
+                    input.form-control#rl_offset( type="text", name="offset", placeholder="title, isbn, author, keyword")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="rl_len") Length (Optional)
+                .col-lg-10
+                    input.form-control#rl_len( type="text", name="len", placeholder="title, isbn, author, keyword")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="rl_mode") Mode
+                .col-lg-10
+                    input.form-control#rl_mode( type="text", name="mode", placeholder="one of all, new, allow or deny")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get
+    hr
+    form.getbookdetail.form-horizontal(action="/api/books", method="get", role="form")
+        h1 Get book
+            small GET /api/books/:bookId
+        .form-group
+            label.col-lg-2.control-label(for="bg_book_id") Book Id
+            .col-lg-10
+                input.form-control#bg_book_id( type="text", name="book_id", placeholder="Book Id")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get
+    hr
+    form.create.form-horizontal(enctype="multipart/form-data", action="/api/books", method="POST", role="form")
+        h1 Create a new Book
+            small POST /api/books
+        .form-group
+            label.col-lg-2.control-label(for="create_category_id") Category
+            .col-lg-10
+                input.form-control#create_category_id(name="category_id", type="text", placeholder="Category Id")
+        .form-group
+            label.col-lg-2.control-label(for="create_title") Title
+            .col-lg-10
+                input.form-control#create_title(name="title", placeholder="Title", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_author") Author
+            .col-lg-10
+                input.form-control#create_author(name="author", placeholder="Author", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_isbn") ISBN
+            .col-lg-10
+                input.form-control#create_isbn(name="isbn", placeholder="ISBN", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_publisher") Publisher
+            .col-lg-10
+                input.form-control#create_publisher(name="publisher", placeholder="Publisher", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_type") Type
+            .col-lg-10
+                input.form-control#create_type(name="type", placeholder="Book Type", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_price") Price
+            .col-lg-10
+                input.form-control#create_price(name="price", placeholder="Price", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_description") Description
+            .col-lg-10
+                input.form-control#create_description(name="description", placeholder="Descripton", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_coverfile") Cover image
+            .col-lg-10
+                input.form-control#create_coverfile(name="coverfile", placeholder="Cover Image", type="file")
+
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Create
+    hr
+    form.update.form-horizontal(action="/api/books",enctype="multipart/form-data", method="post", role="form")
+        h1 Update a book info
+            small PUT /api/books/:bookId
+        .form-group
+            label.col-lg-2.control-label(for="update_book_id") Textbook ID
+            .col-lg-10
+                input.form-control#update_book_id(name="book_id", type="text", placeholder="Textbook ID")
+        .form-group
+            label.col-lg-2.control-label(for="update_category_id") Category
+            .col-lg-10
+                input.form-control#update_category_id(name="category_id", type="text", placeholder="Category Id")
+        .form-group
+            label.col-lg-2.control-label(for="update_title") Title
+            .col-lg-10
+                input.form-control#update_title(name="title", placeholder="Title", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_author") Author
+            .col-lg-10
+                input.form-control#update_author(name="author", placeholder="Author", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_isbn") ISBN
+            .col-lg-10
+                input.form-control#update_isbn(name="isbn", placeholder="ISBN", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_publisher") Publisher
+            .col-lg-10
+                input.form-control#update_publisher(name="publisher", placeholder="Publisher", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_type") Type
+            .col-lg-10
+                input.form-control#update_type(name="type", placeholder="Type", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_price") Price
+            .col-lg-10
+                input.form-control#update_price(name="price", placeholder="Price", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_description") Description
+            .col-lg-10
+                input.form-control#update_description(name="description", placeholder="Description", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_coverfile") Cover image
+            .col-lg-10
+                input.form-control#update_coverfile(name="coverfile", placeholder="Cover Image", type="file")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Modify Book Detail
+
+    form.changebookstatus.form-horizontal
+        h1 Change Book status
+            small PUT /api/books/:bookId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="cbs_book_id") Book Id
+                .col-lg-10
+                    input.form-control#cbs_book_id(name="book_id", placeholder="User Id", type="text")
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="db_status") Status
+                .col-lg-10
+                    input.form-control#cbs_status(name="status", placeholder="Status( new, allow, deny )", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Change Status
+
+    form.delete.form-horizontal
+        h1 Delete a book
+            small DELETE /api/books/:bookId
+        .form-group
+            .form-group
+                label.col-lg-2.control-label(for="db_book_id") Book Id
+                .col-lg-10
+                    input.form-control#db_book_id(name="book_id", placeholder="User Id", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Delete Book
+
     script.
-        $("form.create").on("submit", function(){
-            $(this).attr("action", "/api/books");
-            return true;
-        });
-        $("form.search").on("submit", function(){
-            var frm = {
-                keyword: $("#keyword").val()
-            };
-            if( $("#zip").val() != "" ) { frm.zip = $("#zip").val(); }
-            if( $("#distance").val() != "" ) { frm.distance = $("#distance").val(); }
-            if( $("#price_min").val() != "" ) { frm.price_min = $("#price_min").val(); }
-            if( $("#price_max").val() != "" ) { frm.price_max = $("#price_max").val(); }
-            if( $("#cover").val() != "" ) { frm.cover = $("#cover").val(); }
-            if( $("#category").val() != "" ) { frm.category = $("#category").val(); }
+
+        $("form.searchbooks").on("submit", function() {
+            var frm = getFormData($(this));
             $.ajax("/api/books",
                 {dataType: 'json', data: frm, type : 'GET'}
             );
             return false;
         });
-        $("form.get").on("submit", function(){
-            $.ajax("/api/books/"+$("#book_id").val(),
-                {dataType: 'json', data: {}, type : 'GET'}
+        $("form.retrivebooklist").on("submit", function(){
+            var frm = getFormData($(this));
+            $.ajax("/api/books/list",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+        $("form.getbookdetail").on("submit", function(){
+            $.ajax("/api/books/"+$("#bg_book_id").val(),
+                {dataType: 'json', type : 'GET'}
+            );
+            return false;
+        });
+        $("form.update").on("submit", function(){
+            $(this).attr("action", "/api/books/"+$("#update_book_id").val());
+        });
+        $("form.delete").on("submit", function(){
+            $.ajax("/api/books/" + $("#db_book_id").val(),
+                {dataType: 'json', type : 'DELETE'}
+            );
+            return false;
+        });
+        $("form.changebookstatus").on("submit", function() {
+            var frm = getFormData($(this));
+            $.ajax("/api/books/" + $("#cbs_book_id").val()+"/status",
+                {dataType: 'json', data: frm, type : 'put'}
             );
             return false;
         });

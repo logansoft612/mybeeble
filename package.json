@@ -16,6 +16,7 @@
         "view-helpers": "latest",
         "async": "latest",
         "nodemailer": "latest",
-        "email-templates": "latest"
+        "email-templates": "latest",
+        "node-oauth2-server": "latest"
     }
 }

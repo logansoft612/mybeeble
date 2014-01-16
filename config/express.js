@@ -6,9 +6,10 @@ var express = require('express'),
     flash = require('connect-flash'),
     helpers = require('view-helpers'),
     config = require('./config'),
-    jade = require('jade');
+    jade = require('jade'),
+    oauthserver = require('node-oauth2-server');
 
-module.exports = function(app, passport) {
+module.exports = function(app, passport, oauth, dbPool) {
     "use strict";
     /*
 
@@ -60,6 +61,12 @@ module.exports = function(app, passport) {
     app.enable("jsonp callback");
 
     app.configure(function() {
+        /*var oauth = oauthserver({
+            model: require('./oauthmodel')(dbPool),
+            grants: ['password'],
+            debug: true
+        });*/
+
         //cookieParser should be above session
         app.use(express.cookieParser());
 
@@ -77,14 +84,19 @@ module.exports = function(app, passport) {
         app.use(express.session({secret: 'mybeeble-3hXa6JpcA -?exc]_64_4.Y%*:Zj@_$;lY/jLOy?'/*, cookie: { expires: new Date(Date.now() + 60 * 10000), maxAge: 60 * 10000}*/}));
 
         //connect flash for flash messages
-        //app.use(flash());
+        app.use(flash());
 
         //dynamic helpers
         app.use(helpers(config.app.name));
 
+        //app.use(oauth.handler());
+        //app.use(oauth.errorHandler());
+
         //use passport session
         app.use(passport.initialize());
         app.use(passport.session());
+
+        app.use(oauth.doAuth);
 
         //routes should be at the last
         app.use(app.router);
@@ -117,7 +129,7 @@ module.exports = function(app, passport) {
             res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
             res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
             next();
-        })
+        });
 
         // replaces all html files with jade templates, because jade is cool
         app.get('/js/modules/*.html', function (req, res) {
@@ -129,6 +141,5 @@ module.exports = function(app, passport) {
                 }
             );
         });
-
     });
 };

@@ -72,7 +72,7 @@ module.exports = function(dbPool, passport) {
         update : function(req, res) {
             var param = req.body;
             var userId = req.params.userId;
-            var profileImgPath = "";
+            var profileImgPath = null;
             if(req.files && req.files.profile_img) {
                 profileImgPath = req.files.profile_img.originalFilename;
             }
@@ -107,9 +107,57 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
+
                 var sql = connection.format( 'UPDATE user SET username=?, email=?, password=MD5(?), first_name=?' +
                     ', last_name=?, phone=?, address=?, zip=?, profile_img=?, major=?, minor=?, grad_date=? WHERE id=?'
                     ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profileImgPath, param.major, param.minor, param.grad_date, userId]);
+                var sql = "";
+                if(param.username) {
+                    sql += connection.format('username=?,', [param.username]);
+                }
+                if(param.email) {
+                    sql += connection.format('email=?,', [param.email]);
+                }
+                if(param.username) {
+                    sql += connection.format('username=?,', [param.username]);
+                }
+                if(param.password) {
+                    sql += connection.format('password=?,', [param.password]);
+                }
+                if(param.first_name) {
+                    sql += connection.format('first_name=?,', [param.first_name]);
+                }
+                if(param.last_name) {
+                    sql += connection.format('last_name=?,', [param.last_name]);
+                }
+                if(param.phone) {
+                    sql += connection.format('phone=?,', [param.phone]);
+                }
+                if(param.address) {
+                    sql += connection.format('address=?,', [param.address]);
+                }
+                if(param.zip) {
+                    sql += connection.format('zip=?,', [param.zip]);
+                }
+                if(profileImgPath) {
+                    sql += connection.format('profile_img=?,', [profileImgPath]);
+                }
+                if(param.major) {
+                    sql += connection.format('major=?,', [param.major]);
+                }
+                if(param.minor) {
+                    sql += connection.format('minor=?,', [param.minor]);
+                }
+                if(param.grad_date) {
+                    sql += connection.format('grad_date=?,', [param.grad_date]);
+                }
+                if(sql.length == 0) {
+                    return Response.error(res, err, 'There is no field to update.');
+                }
+                sql = sql.substring(0, sql.length-1);
+                sql = "UPDATE user SET " + sql +  connection.format(' WHERE id=?',[userId]);
+
+
                 connection.query(sql, function(err, result) {
                         connection.release();
                         if (err) {
@@ -133,6 +181,52 @@ module.exports = function(dbPool, passport) {
                         }
                         return Response.success(res, result);
                     });
+            });
+        },
+
+        /**
+         *
+         * @param req [ username, email, password, first_name, last_name, phone, address, zip, profile_img, major, minor, grad_date ]
+         * @param res
+         * @url_param - userId
+         */
+        updateavatar : function(req, res) {
+            var param = req.body;
+            var userId = req.params.userId;
+            var profileImgPath = "";
+            if(req.files && req.files.profile_img) {
+                profileImgPath = req.files.profile_img.originalFilename;
+            }
+
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Response.error(res, err, 'Can not get db connection.');
+                }
+                var sql = connection.format( 'UPDATE user SET profile_img=? WHERE id=?'
+                    ,[profileImgPath, userId]);
+                connection.query(sql, function(err, result) {
+                    connection.release();
+                    if (err) {
+                        if(req.files && req.files.profile_img) {
+                            fs.unlink(req.files.profile_img.path);
+                        }
+                        return Response.error(res, err, 'Did not modify the user\'s profile.');
+                    }
+                    if(req.files && req.files.profile_img) {
+                        if (req.files.profile_img.originalFilename === "") {
+                            fs.unlink(req.files.profile_img.path);
+                        } else {
+                            var tmp_path = req.files.profile_img.path;
+                            var target_path = config.path.avatar + userId + '.jpg';
+                            fs.rename(tmp_path, target_path, function(err) {
+                                if(err) {
+                                    console.log("---file move error. file ID : " + userId + " error : ", err);
+                                }
+                            });
+                        }
+                    }
+                    return Response.success(res, result);
+                });
             });
         },
 

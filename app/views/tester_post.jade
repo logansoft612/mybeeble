@@ -5,102 +5,335 @@ block content
     hr
     = ' ' + JSON.stringify(user)
     hr
-    form.create(action="/api/users/"+user.id+"/posts",enctype="multipart/form-data", method="post", role="form")
-        h1 Post New Book
-        input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
+    form.search.form-horizontal(action="/api/books", method="get", role="form")
+        h1 Search Posts
+            small POST /api/users/:userId/posts
+        .form-group
+            label.col-lg-2.control-label(for="search_user_id") User ID
+            .col-lg-10
+                input.form-control#search_user_id( type="text", name="user_id", placeholder="User Id", value=user.id)
+        .form-group
+            label.col-lg-2.control-label(for="search_keyword") Keyword
+            .col-lg-10
+                input.form-control#search_keyword( type="text", name="keyword", placeholder="title, isbn, author, keyword")
+        .form-group
+            label.col-lg-2.control-label(for="search_zip") Zip code
+            .col-lg-10
+                input.form-control#search_zip(name="zip", placeholder="Zip code", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="search_distance") Distance
+            .col-lg-10
+                input.form-control#search_distance(name="distance", placeholder="Distance", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="search_price_min") Price Min
+            .col-lg-10
+                input.form-control#search_price_min(name="price_min", placeholder="Price Min", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="search_price_max") Price Max
+            .col-lg-10
+                input.form-control#search_price_max(name="price_max", placeholder="Price Max", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="search_type") Type
+            .col-lg-10
+                input.form-control#search_type(name="type", placeholder="Cover", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="search_category") Category
+            .col-lg-10
+                input.form-control#search_category(name="category", placeholder="Category ID", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Search
+    hr
+    form.create.form-horizontal(action="/api/users/"+user.id+"/posts",enctype="multipart/form-data", method="post", role="form")
+        h1 Create a new Post
+            small POST /api/users/:userId/posts
+        .form-group
+            label.col-lg-2.control-label(for="create_user_id") User ID
+            .col-lg-10
+                input.form-control#create_user_id(placeholder="User Id", type="text", value=user.id)
         br
-        input#coverfile( type="file", name="coverfile")
+        .form-group
+            label.col-lg-2.control-label(for="create_coverfile") Cover File
+            .col-lg-10
+                input.form-control#create_coverfile( type="file", name="coverfile")
 
-        input.form-control#title(name="title", placeholder="title", type="text")
-        input.form-control#author(name="author", placeholder="author", type="text")
-        input.form-control#category(name="category", placeholder="category", type="text")
-        input.form-control#isbn(name="isbn", placeholder="isbn", type="text")
-        input.form-control#publisher(name="publisher", placeholder="publisher", type="text")
-        input.form-control#type(name="type", placeholder="type", type="text")
-        input.form-control#price(name="price", placeholder="price", type="text")
-        input.form-control#description(name="description", placeholder="description", type="text")
-        input.form-control#zip(name="zip", placeholder="zip", type="text")
-        input.form-control#isold(name="isold", placeholder="isold", type="text")
-        input.form-control#contact(name="contact", placeholder="contact", type="text")
-        input.form-control#condition(name="condition", placeholder="condition", type="text")
-        input.form-control#email(name="email", placeholder="email", type="text")
-        input.form-control#phone(name="phone", placeholder="phone", type="text")
-        label
-            input.form-control#by_phone(name="by_phone", placeholder="by_phone", type="checkbox", value="1")
-            | by Phone
-        label
-            input.form-control#by_text(name="by_text", placeholder="by_text", type="checkbox", value="1")
-            | by Text
-        label
-            input.form-control#by_email(name="by_email", placeholder="by_email", type="checkbox", value="1")
-            | by Email
-        input.form-control#comment(name="comment", placeholder="comment", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_title") Title
+            .col-lg-10
+                input.form-control#create_title(name="title", placeholder="title", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_author") Author
+            .col-lg-10
+                input.form-control#create_author(name="author", placeholder="author", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_category") Category
+            .col-lg-10
+                input.form-control#create_category(name="category", placeholder="category", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_isbn") ISBN
+            .col-lg-10
+                input.form-control#create_isbn(name="isbn", placeholder="isbn", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_publisher") Publisher
+            .col-lg-10
+                input.form-control#create_publisher(name="publisher", placeholder="publisher", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_type") Type
+            .col-lg-10
+                input.form-control#create_type(name="type", placeholder="type", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_price") Price
+            .col-lg-10
+                input.form-control#create_price(name="price", placeholder="price", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_description") Description
+            .col-lg-10
+                input.form-control#create_description(name="description", placeholder="description", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_zip") Zip
+            .col-lg-10
+                input.form-control#create_zip(name="zip", placeholder="zip", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_old") Old
+            .col-lg-10
+                input.form-control#create_old(name="isold", placeholder="isold", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_contact") Contact
+            .col-lg-10
+                input.form-control#create_contact(name="contact", placeholder="contact", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_condition") Condition
+            .col-lg-10
+                input.form-control#create_condition(name="condition", placeholder="condition", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_email") eMail
+            .col-lg-10
+                input.form-control#create_email(name="email", placeholder="email", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="create_phone") Phone
+            .col-lg-10
+                input.form-control#create_phone(name="phone", placeholder="phone", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#create_by_phone(name="by_phone",type="checkbox", value="1")
+                    | by Phone
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#create_by_text(name="by_text", type="checkbox", value="1")
+                    | by Text
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#create_by_email(name="by_email", type="checkbox", value="1")
+                    | by Email
+        .form-group
+            label.col-lg-2.control-label(for="create_comment") Comment
+            .col-lg-10
+                input.form-control#create_comment(name="comment", placeholder="comment", type="text")
         br
-        label
-            input.form-control#use_textbook_cover(name="use_textbook_cover", placeholder="use_textbook_cover", type="checkbox", value="1")
-            | Use Textbook Cover
-        input.form-control#textbook_id(name="textbook_id", placeholder="textbook ID", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#create_use_textbook_cover(name="use_textbook_cover", type="checkbox", value="1")
+                    | Use Textbook Cover
+        .form-group
+            label.col-lg-2.control-label(for="create_book_id") Category
+            .col-lg-10
+                input.form-control#textbook_id(name="textbook_id", placeholder="textbook ID", type="text")
         .form-group
             .col-lg-offset-2.col-lg-10
                 button.btn.btn-primary(type="submit") Post A New Book
     hr
-    form.update.form-horizontal(action="/api/users/"+user.id+"/posts//update",enctype="multipart/form-data", method="post", role="form")
+    form.update.form-horizontal(action="/api/users/"+user.id+"/posts/:postId",enctype="multipart/form-data", method="post", role="form")
         h1 Modify Post
-        input.form-control#update_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#update_post_id(placeholder="keyword", type="text")
+            small POST /api/users/:userId/posts/:postId
+        .form-group
+            label.col-lg-2.control-label(for="update_user_id") User ID
+            .col-lg-10
+                input.form-control#update_user_id(name="user_id", placeholder="User Id", type="text", value=user.id)
+        .form-group
+            label.col-lg-2.control-label(for="update_post_id") Post ID
+            .col-lg-10
+                input.form-control#update_user_id(name="post_id", placeholder="Post Id", type="text")
         br
-        input#modify_coverfile( type="file", name="coverfile")
+        .form-group
+            label.col-lg-2.control-label(for="update_coverfile") Cover File
+            .col-lg-10
+                input.form-control#update_coverfile( type="file", name="coverfile")
 
-        input.form-control#modify_title(name="title", placeholder="title", type="text")
-        input.form-control#modify_author(name="author", placeholder="author", type="text")
-        input.form-control#modify_category(name="category", placeholder="category", type="text")
-        input.form-control#modify_isbn(name="isbn", placeholder="isbn", type="text")
-        input.form-control#modify_publisher(name="publisher", placeholder="publisher", type="text")
-        input.form-control#modify_cover(name="cover", placeholder="cover", type="text")
-        input.form-control#modify_price(name="price", placeholder="price", type="text")
-        input.form-control#modify_description(name="description", placeholder="description", type="text")
-        input.form-control#modify_zip(name="zip", placeholder="zip", type="text")
-        input.form-control#modify_isold(name="isold", placeholder="isold", type="text")
-        input.form-control#modify_contact(name="contact", placeholder="contact", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_title") Title
+            .col-lg-10
+                input.form-control#update_title(name="title", placeholder="title", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_author") Author
+            .col-lg-10
+                input.form-control#update_author(name="author", placeholder="author", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_category") Category
+            .col-lg-10
+                input.form-control#update_category(name="category", placeholder="category", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_isbn") ISBN
+            .col-lg-10
+                input.form-control#update_isbn(name="isbn", placeholder="isbn", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_publisher") Publisher
+            .col-lg-10
+                input.form-control#update_publisher(name="publisher", placeholder="publisher", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_type") Type
+            .col-lg-10
+                input.form-control#update_type(name="type", placeholder="type", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_price") Price
+            .col-lg-10
+                input.form-control#update_price(name="price", placeholder="price", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_description") Description
+            .col-lg-10
+                input.form-control#update_description(name="description", placeholder="description", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_zip") Zip
+            .col-lg-10
+                input.form-control#update_zip(name="zip", placeholder="zip", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_old") Old
+            .col-lg-10
+                input.form-control#update_old(name="isold", placeholder="isold", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_contact") Contact
+            .col-lg-10
+                input.form-control#update_contact(name="contact", placeholder="contact", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_condition") Condition
+            .col-lg-10
+                input.form-control#update_condition(name="condition", placeholder="condition", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_email") eMail
+            .col-lg-10
+                input.form-control#update_email(name="email", placeholder="email", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="update_phone") Phone
+            .col-lg-10
+                input.form-control#update_phone(name="phone", placeholder="phone", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#update_by_phone(name="by_phone",type="checkbox", value="1")
+                    | by Phone
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#update_by_text(name="by_text", type="checkbox", value="1")
+                    | by Text
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#update_by_email(name="by_email", type="checkbox", value="1")
+                    | by Email
+        .form-group
+            label.col-lg-2.control-label(for="update_comment") Comment
+            .col-lg-10
+                input.form-control#update_comment(name="comment", placeholder="comment", type="text")
+        br
+        .form-group
+            .col-lg-offset-2.col-lg-10.checkbox
+                label
+                    input#update_use_textbook_cover(name="use_textbook_cover", type="checkbox", value="1")
+                    | Use Textbook Cover
+        .form-group
+            label.col-lg-2.control-label(for="update_textbook_id") Category
+            .col-lg-10
+                input.form-control#update_textbook_id(name="textbook_id", placeholder="textbook ID", type="text")
 
         .form-group
             .col-lg-offset-2.col-lg-10
-                button.btn.btn-primary(type="submit") Update the Book
+                button.btn.btn-primary(type="submit") Update the Post
     hr
-    form.search.form-horizontal(method="get", role="form")
-        h1 Search Post
-        input.form-control#search_user_id(placeholder="user_id", type="text", value=user.id)
-        input.form-control#keyword(placeholder="keyword", type="text")
-        button.btn.btn-primary(type="submit") Search
+    form.getpost.form-horizontal(method="get", role="form")
+        h1 Get A Post Detail
+            small GET /api/users/:userId/posts/:postId
+        .form-group
+            label.col-lg-2.control-label(for="gp_user_id") User ID
+            .col-lg-10
+                input.form-control#gp_user_id(name="user_id", placeholder="User Id", type="text", value=user.id)
+        .form-group
+            label.col-lg-2.control-label(for="gp_post_id") Post ID
+            .col-lg-10
+                input.form-control#gp_post_id(name="post_id", placeholder="Post Id", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Get
     hr
-    form.delete.form-horizontal
-        h1 Remove Post
-        input.form-control#delete_user_id(placeholder="User ID", type="text", value=user.id)
-        input.form-control#delete_post_id(placeholder="Post ID", type="text")
-        button.btn.btn-primary(type="submit") Remove
+    form.deletepost.form-horizontal(method="get", role="form")
+        h1 Delete a post
+            small DELETE /api/users/:userId/posts/:postId
+        .form-group
+            label.col-lg-2.control-label(for="dp_user_id") User ID
+            .col-lg-10
+                input.form-control#dp_user_id(name="user_id", placeholder="User ID", type="text", value=user.id)
+        .form-group
+            label.col-lg-2.control-label(for="dp_post_id") Post ID
+            .col-lg-10
+                input.form-control#dp_post_id(name="post_id", placeholder="Post ID", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Search
+    hr
+    form.getziplist.form-horizontal
+        h1 Get ZIP list in distance
+            small GET /api/zips
+        .form-group
+            label.col-lg-2.control-label(for="zl_zip") Zip
+            .col-lg-10
+                input.form-control#zl_zip(name="zip", placeholder="Zip", type="text")
+        .form-group
+            label.col-lg-2.control-label(for="zl_distance") Distance
+            .col-lg-10
+                input.form-control#zl_distance(name="distance", placeholder="Distance", type="text")
+        .form-group
+            .col-lg-offset-2.col-lg-10
+                button.btn.btn-primary(type="submit") Remove
 
     script.
+        $("form.search").on("submit", function(){
+            var frm = getFormData($(this));
+            $.ajax("/api/users/"+$("#search_user_id").val()+"/posts",
+                {dataType: 'json', data: frm, type : 'GET'}
+            );
+            return false;
+        });
+
         $("form.create").on("submit", function(){
             $(this).attr("action", "/api/users/"+$("#create_user_id").val()+"/posts");
             return true;
         });
+
         $("form.update").on("submit", function(){
             $(this).attr("action", "/api/users/"+$("#update_user_id").val()+"/posts/" + $("#update_post_id").val());
             //$(this).attr("action", "/api/users/"+$("#update_user_id").val()+"/updateposts");
             return true;
         });
-        $("form.search").on("submit", function(){
-            var frm = {
-                keyword: $("#keyword").val()
-            };
-            $.ajax("/api/users/"+$("#search_user_id").val()+"/posts",
-                {dataType: 'json', data: frm, type : 'GET'}
+
+        $("form.getpost").on("submit", function(){
+            $.ajax("/api/users/"+$("#gp_user_id").val()+"/posts/"+$("#gp_post_id").val(),
+                {dataType: 'json', type : 'get'}
             );
             return false;
         });
         $("form.delete").on("submit", function(){
             $.ajax("/api/users/"+$("#delete_user_id").val()+"/posts/"+$("#delete_post_id").val(),
                 {dataType: 'json', data: {}, type : 'DELETE'}
+            );
+            return false;
+        });
+        $("form.getziplist").on("submit", function(){
+            var frm = getFormData($(this));
+            $.ajax("/api/zips",
+                {dataType: 'json', data: frm, type : 'get'}
             );
             return false;
         });

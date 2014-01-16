@@ -108,7 +108,6 @@ module.exports = function(dbPool) {
         read : function(req, res) {
             var param = req.query;
             var bookId = req.params.bookId;
-            var keyword = '';
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -120,7 +119,11 @@ module.exports = function(dbPool) {
                         if (err) {
                             return Response.error(res, err, 'You can not get this textbook. Sorry for inconvenient');
                         }
-                        return Response.success(res, result);
+                        if(result.length > 0) {
+                            return Response.success(res, result[0]);
+                        } else {
+                            return Response.success(res, null);
+                        }
                     });
             });
         },
@@ -134,7 +137,12 @@ module.exports = function(dbPool) {
             var param = req.body;
             var userId = req.user.id;
             var contactInfo = '';
-            var coverPath = '';
+            var coverFileName = '';
+            var isFileExist = false;
+            if(req.files && req.files.coverfile) {
+                isFileExist = true;
+                coverFileName = req.files.coverfile.originalFilename;
+            }
 
             dbPool.getConnection(function(err, connection){
                 if (err) {
@@ -145,19 +153,70 @@ module.exports = function(dbPool) {
                 } else {
                     contactInfo = param.contact;
                 }
-                connection.query( 'INSERT INTO textbook(textbook.category_id, textbook.title, textbook.author, textbook.isbn13, textbook.publisher, textbook.type, textbook.price, textbook.description, textbook.user_id, textbook.status) ' +
-                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, userId, config.app.textbook_status[1] /* new */ ],
+                connection.query( 'INSERT INTO textbook(textbook.category_id, textbook.title, textbook.author, textbook.isbn13, textbook.publisher, textbook.type, textbook.price, textbook.description, textbook.user_id, textbook.status, cover_filename) ' +
+                    'values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, userId, config.app.textbook_status[1] /* new */ , coverFileName],
                     function(err, result) {
                         connection.release();
                         if (err) {
-                            if(req.files && req.files.coverfile) {
+                            if(isFileExist) {
                                 fs.unlink(req.files.coverfile.path);
                             }
                             return Response.error(res, err, 'Did not create the new textbook. Sorry for inconvenience.');
                         }
 
-                        if(req.files && req.files.coverfile) {
+                        if(isFileExist) {
+                            if (req.files.coverfile.originalFilename === "") {
+                                fs.unlink(req.files.coverfile.path);
+                            } else {
+                                var tmp_path = req.files.coverfile.path;
+                                var target_path = config.path.book_img + result.insertId + '.jpg';
+                                fs.rename(tmp_path, target_path, function(err) {
+                                    if(err) {
+                                        console.log("---file move error. file ID : " + result.insertId + " error : ", err);
+                                    }
+                                });
+                            }
+                        }
+                        return Response.success(res, result);
+                    });
+            });
+        },
+        /**
+         * update textbook info.
+         *
+         * @param req [ keyword]
+         * @param res
+         */
+        update : function(req, res) {
+            var param = req.body;
+            var userId = req.user.id;
+            var bookId = req.params.boookId;
+
+            var coverFileName = '';
+            var isFileExist = false;
+            if(req.files && req.files.coverfile) {
+                isFileExist = true;
+                coverFileName = req.files.coverfile.originalFilename;
+            }
+
+            dbPool.getConnection(function(err, connection){
+                if (err) {
+                    return Error(res, err, 'Can not get db connection.');
+                }
+                connection.query( 'UPDATE textbook SET textbook.category_id=?, textbook.title=?, textbook.author=?, textbook.isbn13=?, textbook.publisher=?, textbook.type=?, textbook.price=?, textbook.description=?, textbook.user_id=?, textbook.status=?, cover_filename=?) ' +
+                    'WHERE id=?',
+                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, userId, config.app.textbook_status[1] /* new */ , coverFileName, bookId],
+                    function(err, result) {
+                        connection.release();
+                        if (err) {
+                            if(isFileExist) {
+                                fs.unlink(req.files.coverfile.path);
+                            }
+                            return Response.error(res, err, 'Did not create the new textbook. Sorry for inconvenience.');
+                        }
+
+                        if(isFileExist) {
                             if (req.files.coverfile.originalFilename === "") {
                                 fs.unlink(req.files.coverfile.path);
                             } else {
@@ -177,25 +236,25 @@ module.exports = function(dbPool) {
         /**
          * Update textbook status ( Administrator update the newly registered textbook )
          *
-         * @param req { mode: : {number}(all, new , allow, deny) }
+         * @param req { status: : {string}( new , allow, deny) }
          * @param res
          * @url_param - bookId
          */
-        update : function(req, res) {
+        status : function(req, res) {
             var param = req.body;
             var bookId = req.params.bookId;
 
-            var mode = param.mode;
+            var status = param.status;
 
-            if(config.app.textbook_status.indexOf(mode) < 1) {
-                return Response.error(res, null, 'You should give right permission mode. [new, allow, deny]');
+            if(config.app.textbook_status.indexOf(status) < 1) {
+                return Response.error(res, null, 'You should give right textbook statues. [new, allow, deny]');
             }
             dbPool.getConnection(function(err, connection){
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
                 connection.query( 'UPDATE textbook SET status=? WHERE id = ? '
-                    , [ mode, bookId ], function(err, result) {
+                    , [ status, bookId ], function(err, result) {
                         connection.release();
                         if (err) {
                             return Response.error(res, err, 'You can not modify this textbook. Sorry for inconvenient');

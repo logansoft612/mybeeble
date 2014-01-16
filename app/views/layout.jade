@@ -6,6 +6,16 @@ html
         link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
         script(src='http://code.jquery.com/jquery-1.10.1.min.js')
     body
+        script.
+            var getFormData = function($formObj) {
+                var formData = {};
+                $formObj.find("input").each(function(i, e){
+                    if ( $(e).val() != "" ) {
+                        formData[$(e).attr("name")] = $(e).val();
+                    }
+                });
+                return formData;
+            }
         pre#request_log
         if user
             include ./nav

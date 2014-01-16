@@ -38,10 +38,15 @@ module.exports = function(dbPool, notifier, activity) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-                escapedString = '%' + param.keyword + '%';
-                sql = connection.format('SELECT * FROM post ' +
-                    'WHERE del=0 AND ( isbn13 LIKE ? OR author LIKE ? OR title LIKE ? OR publisher LIKE ?)'
-                    ,[escapedString, escapedString, escapedString, escapedString]);
+                if(param.keyword) {
+                    escapedString = '%' + param.keyword + '%';
+                    sql = connection.format('SELECT * FROM post ' +
+                        'WHERE del=0 AND ( isbn13 LIKE ? OR author LIKE ? OR title LIKE ? OR publisher LIKE ?)'
+                        ,[escapedString, escapedString, escapedString, escapedString]);
+                } else {
+                    sql = 'SELECT * FROM post WHERE del=0 ';
+                }
+
                 if (param.category) {
                     sql += ' AND category_id=' + param.category;
                 }
@@ -188,7 +193,7 @@ module.exports = function(dbPool, notifier, activity) {
 
 
             if( param.use_textbook_cover ) {
-                coverPath = "/books/imgs/" + config.path.book_img + param.textbook_id + '.jpg';
+                coverPath = "/books/imgs/" + param.textbook_id + '.jpg';
                 if(req.files) {
                     fs.unlink(req.files.coverfile.path);
                 }
@@ -285,7 +290,7 @@ module.exports = function(dbPool, notifier, activity) {
             var sql = '';
 
             if( param.use_textbook_cover ) {
-                coverPath = "/books/imgs/" + config.path.book_img + param.textbook_id + '.jpg';
+                coverPath = "/books/imgs/" + param.textbook_id + '.jpg';
                 if(req.files) {
                     fs.unlink(req.files.coverfile.path);
                 }

@@ -12,7 +12,7 @@ var fs = require('fs');
 var mysql  = require('mysql');
 
 var config = require('./config/config');
-auth = require('./config/middlewares/authorization');
+var auth = require('./config/middlewares/authorization');
 
 //Bootstrap db connection
 var dbPool = mysql.createPool(config.db);
@@ -37,12 +37,13 @@ var walk = function(path) {
 walk(models_path);
 */
 //bootstrap passport config
+var oauth = require('./config/middlewares/oauth')(dbPool);
 require('./config/passport')(passport, dbPool);
 
 var app = express();
 
 //express settings
-require('./config/express')(app, passport);
+require('./config/express')(app, passport, oauth, dbPool);
 
 require('./config/routes')(app, passport, auth, dbPool);
 
