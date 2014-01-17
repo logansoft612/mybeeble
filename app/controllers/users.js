@@ -7,6 +7,8 @@ var Util            = require('../util/util');
 var EmailHelper     = require('../util/emailer');
 var config          = require('../../config/config');
 var fs              = require('fs');
+//var sys = require('sys');
+var exec = require('child_process').exec;
 
 module.exports = function(dbPool, passport) {
     return {
@@ -172,11 +174,16 @@ module.exports = function(dbPool, passport) {
                             } else {
                                 var tmp_path = req.files.profile_img.path;
                                 var target_path = config.path.avatar + userId + '.jpg';
+                                exec("mv " + tmp_path + " " + target_path, function(error, stdout, stderr){
+                                    console.log(stdout);
+                                })
+                                /*
                                 fs.rename(tmp_path, target_path, function(err) {
                                     if(err) {
                                         console.log("---file move error. file ID : " + userId + " error : ", err);
                                     }
                                 });
+                                */
                             }
                         }
                         return Response.success(res, result);
