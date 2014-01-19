@@ -109,10 +109,11 @@ module.exports = function(dbPool, passport) {
                 if (err) {
                     return Response.error(res, err, 'Can not get db connection.');
                 }
-
+                /*
                 var sql = connection.format( 'UPDATE user SET username=?, email=?, password=MD5(?), first_name=?' +
                     ', last_name=?, phone=?, address=?, zip=?, profile_img=?, major=?, minor=?, grad_date=? WHERE id=?'
                     ,[param.username, param.email, param.password, param.first_name, param.last_name, param.phone, param.address, param.zip, profileImgPath, param.major, param.minor, param.grad_date, userId]);
+                */
                 var sql = "";
                 if(param.username) {
                     sql += connection.format('username=?,', [param.username]);
@@ -176,7 +177,7 @@ module.exports = function(dbPool, passport) {
                                 var target_path = config.path.avatar + userId + '.jpg';
                                 exec("mv " + tmp_path + " " + target_path, function(error, stdout, stderr){
                                     console.log(stdout);
-                                })
+                                });
                                 /*
                                 fs.rename(tmp_path, target_path, function(err) {
                                     if(err) {

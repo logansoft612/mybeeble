@@ -5,6 +5,7 @@ var _           = require('underscore');
 var Response    = require('../util/response');
 var config      = require('../../config/config');
 var fs          = require('fs');
+var exec = require('child_process').exec;
 
 module.exports = function(dbPool) {
     return {
@@ -174,11 +175,16 @@ module.exports = function(dbPool) {
                             } else {
                                 var tmp_path = req.files.coverfile.path;
                                 var target_path = config.path.book_img + result.insertId + '.jpg';
+                                exec("mv " + tmp_path + " " + target_path, function(error, stdout, stderr){
+                                    console.log(stdout);
+                                });
+                                /*
                                 fs.rename(tmp_path, target_path, function(err) {
                                     if(err) {
                                         console.log("---file move error. file ID : " + result.insertId + " error : ", err);
                                     }
                                 });
+                                */
                             }
                         }
                         return Response.success(res, result);
@@ -194,9 +200,9 @@ module.exports = function(dbPool) {
         update : function(req, res) {
             var param = req.body;
             var userId = req.user.id;
-            var bookId = req.params.boookId;
+            var bookId = req.params.bookId;
 
-            var coverFileName = '';
+            var coverFileName = null;
             var isFileExist = false;
             if(req.files && req.files.coverfile) {
                 isFileExist = true;
@@ -207,33 +213,73 @@ module.exports = function(dbPool) {
                 if (err) {
                     return Error(res, err, 'Can not get db connection.');
                 }
-                connection.query( 'UPDATE textbook SET textbook.category_id=?, textbook.title=?, textbook.author=?, textbook.isbn13=?, textbook.publisher=?, textbook.type=?, textbook.price=?, textbook.description=?, textbook.user_id=?, textbook.status=?, cover_filename=?) ' +
-                    'WHERE id=?',
-                    [param.category, param.title, param.author, param.isbn, param.publisher, param.type, param.price, param.description, userId, config.app.textbook_status[1] /* new */ , coverFileName, bookId],
-                    function(err, result) {
-                        connection.release();
-                        if (err) {
-                            if(isFileExist) {
-                                fs.unlink(req.files.coverfile.path);
-                            }
-                            return Response.error(res, err, 'Did not create the new textbook. Sorry for inconvenience.');
-                        }
+                var sql = "";
+                if(param.category) {
+                    sql += connection.format('textbook.category_id=?,', [param.category]);
+                }
+                if(param.title) {
+                    sql += connection.format('textbook.title=?,', [param.title]);
+                }
+                if(param.author) {
+                    sql += connection.format('textbook.author=?,', [param.author]);
+                }
+                if(param.isbn) {
+                    sql += connection.format('textbook.isbn13=?,', [param.isbn]);
+                }
+                if(param.publisher) {
+                    sql += connection.format('textbook.publisher=?,', [param.publisher]);
+                }
+                if(param.type) {
+                    sql += connection.format('textbook.type=?,', [param.type]);
+                }
+                if(param.price) {
+                    sql += connection.format('textbook.price=?,', [param.price]);
+                }
+                if(param.description) {
+                    sql += connection.format('textbook.description=?,', [param.description]);
+                }
+                if(userId) {
+                    sql += connection.format('textbook.user_id=?,', [userId]);
+                }
+                if(coverFileName) {
+                    sql += connection.format('textbook.cover_filename=?,', [coverFileName]);
+                }
+                if(sql.length == 0) {
+                    return Response.error(res, err, 'There is no field to update.');
+                }
+                sql = sql.substring(0, sql.length-1);
+                sql = "UPDATE textbook SET " + sql +  connection.format(' WHERE textbook.id=?',[bookId]);
 
+                console.log(sql);
+                connection.query( sql, function(err, result) {
+                    connection.release();
+                    if (err) {
                         if(isFileExist) {
-                            if (req.files.coverfile.originalFilename === "") {
-                                fs.unlink(req.files.coverfile.path);
-                            } else {
-                                var tmp_path = req.files.coverfile.path;
-                                var target_path = config.path.book_img + result.insertId + '.jpg';
-                                fs.rename(tmp_path, target_path, function(err) {
-                                    if(err) {
-                                        console.log("---file move error. file ID : " + result.insertId + " error : ", err);
-                                    }
-                                });
-                            }
+                            fs.unlink(req.files.coverfile.path);
                         }
-                        return Response.success(res, result);
-                    });
+                        return Response.error(res, err, 'Did not create the new textbook. Sorry for inconvenience.');
+                    }
+
+                    if(isFileExist) {
+                        if (req.files.coverfile.originalFilename === "") {
+                            fs.unlink(req.files.coverfile.path);
+                        } else {
+                            var tmp_path = req.files.coverfile.path;
+                            var target_path = config.path.book_img + bookId + '.jpg';
+                            exec("mv " + tmp_path + " " + target_path, function(error, stdout, stderr){
+                                console.log(stdout);
+                            });
+                            /*
+                            fs.rename(tmp_path, target_path, function(err) {
+                                if(err) {
+                                    console.log("---file move error. file ID : " + result.insertId + " error : ", err);
+                                }
+                            });
+                            */
+                        }
+                    }
+                    return Response.success(res, result);
+                });
             });
         },
         /**

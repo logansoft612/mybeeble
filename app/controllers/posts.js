@@ -6,6 +6,7 @@ var fs          = require('fs');
 var Response    = require('../util/response');
 var Util        = require('../util/util');
 var config      = require('../../config/config');
+var exec = require('child_process').exec;
 
 module.exports = function(dbPool, notifier, activity) {
     return {
@@ -313,11 +314,16 @@ module.exports = function(dbPool, notifier, activity) {
                     } catch (e) {
                         fs.mkdirSync(folderName);
                     }
+                    exec("mv " + tmp_path + " " + target_path, function(error, stdout, stderr){
+                        console.log(stdout);
+                    });
+                    /*
                     fs.rename(tmp_path, target_path, function(err) {
                         if(err) {
                             console.log("---file move error.", err);
                         }
                     });
+                    */
                 }
             }
 
@@ -325,11 +331,7 @@ module.exports = function(dbPool, notifier, activity) {
                 if (err) {
                     return Error(res, err, 'Can not get db connection.');
                 }
-                if(Object.prototype.toString.call(param.contact) === '[object Array]') {
-                    contactInfo = imploid(",", param.contact);
-                } else {
-                    contactInfo = param.contact;
-                }
+                /*
                 if(coverPath === "") {
                     sql = connection.format('UPDATE post SET post.category_id=?, post.title=?, post.author=?, post.isbn13=?, post.publisher=?, ' +
                         ' post.type=?, post.price=?, post.description=?, post.zip=?, post.old=?, post.contact=?, post.condition=?, post.comment=?, post.email=?, post.phone=?, post.by_phone=?, post.by_text=?, post.by_email=? ' +
@@ -337,12 +339,78 @@ module.exports = function(dbPool, notifier, activity) {
                         ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, param.condition, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
                 } else {
                     sql = connection.format('UPDATE post SET post.category_id=?, post.title=?, post.author=?, post.isbn13=?, post.publisher=?, ' +
-                        ' post.type=?, post.price=?, post.description=?, post.zip=?, post.old=?, post.contact=?, post.coverpath=?, post.condition=?, post.comment=?, post.email=?, post.phone=?, post.by_phone=?, post.by_text=?, post.by_email=? ' +
+                        ' post.type=?, post.price=?, post.description=?, post.zip=?, post.old=?, post.contact=?, post.coverpath=?, post.condition=?,
+                         post.comment=?, post.email=?, post.phone=?, post.by_phone=?, post.by_text=?, post.by_email=? ' +
                         ' WHERE post.user_id = ? AND post.id = ? '
-                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description, param.zip, param.isOld, contactInfo, coverPath, param.condition, param.comment, param.email, param.phone, param.by_phone, param.by_text, param.by_email, userId, postId]);
+                        ,[param.category, param.title, param.author, param.isbn, param.publisher, param.cover, param.price, param.description,
+                        param.zip, param.isOld, contactInfo, coverPath, param.condition, param.comment, param.email, param.phone, param.by_phone,
+                        param.by_text, param.by_email, userId, postId]);
+                }*/
+                if(param.category) {
+                    sql += connection.format('post.category_id=?,', [param.category]);
+                }
+                if(param.title) {
+                    sql += connection.format('post.title=?,', [param.title]);
+                }
+                if(param.author) {
+                    sql += connection.format('post.author=?,', [param.author]);
+                }
+                if(param.isbn) {
+                    sql += connection.format('post.isbn13=?,', [param.isbn]);
+                }
+                if(param.publisher) {
+                    sql += connection.format('post.publisher=?,', [param.publisher]);
+                }
+                if(param.type) {
+                    sql += connection.format('post.type=?,', [param.type]);
+                }
+                if(param.price) {
+                    sql += connection.format('post.price=?,', [param.price]);
+                }
+                if(param.description) {
+                    sql += connection.format('post.description=?,', [param.description]);
+                }
+                if(param.zip) {
+                    sql += connection.format('post.zip=?,', [param.zip]);
+                }
+                if(param.isOld) {
+                    sql += connection.format('post.old=?,', [param.isOld]);
+                }
+                if(param.contact) {
+                    sql += connection.format('post.contact=?,', [param.contact]);
+                }
+                if(coverPath) {
+                    sql += connection.format('post.coverpath=?,', [coverPath]);
+                }
+                if(param.condition) {
+                    sql += connection.format('post.condition=?,', [param.condition]);
+                }
+                if(param.comment) {
+                    sql += connection.format('post.comment=?,', [param.comment]);
+                }
+                if(param.email) {
+                    sql += connection.format('post.email=?,', [param.email]);
+                }
+                if(param.phone) {
+                    sql += connection.format('post.phone=?,', [param.phone]);
+                }
+                if(param.by_phone) {
+                    sql += connection.format('post.by_phone=?,', [param.by_phone]);
+                }
+                if(param.by_text) {
+                    sql += connection.format('post.by_text=?,', [param.by_text]);
+                }
+                if(param.by_email) {
+                    sql += connection.format('post.by_email=?,', [param.by_email]);
                 }
 
-                connection.query( sql,function(err, result) {
+                if(sql.length == 0) {
+                    return Response.error(res, err, 'There is no field to update.');
+                }
+                sql = sql.substring(0, sql.length-1);
+                sql = "UPDATE post SET " + sql +  connection.format(' WHERE post.user_id = ? AND post.id = ? ',[ userId, postId]);
+                console.log(sql);
+                connection.query( sql, function(err, result) {
                     connection.release();
                     if (err) {
                         return Response.error(res, err, 'Did not update current post. Sorry for inconvenience.');
